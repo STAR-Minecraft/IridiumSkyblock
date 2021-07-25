@@ -470,6 +470,15 @@ public class IslandManager {
         if (optionalIslandBank.isPresent()) {
             return optionalIslandBank.get();
         } else {
+            IridiumSkyblock.getInstance().getDatabaseManager().getIslandBankTableManager().getEntries().stream()
+                    .filter(islandBank ->
+                            islandBank.getBankItem().equalsIgnoreCase(bankItem.getName()) && islandBank.getIsland().map(Island::getId).orElse(0) == island.getId()
+                    ).findFirst().ifPresent(islandBank ->
+                    {
+                        IridiumSkyblock.getInstance().getLogger().warning("Creating " + bankItem.getName() + " Island Bank that already exists??");
+                        IridiumSkyblock.getInstance().getPersist().save(IridiumSkyblock.getInstance().getDatabaseManager().getIslandBankTableManager().getEntries());
+                    }
+            );
             IslandBank islandBank = new IslandBank(island, bankItem.getName(), 0);
             IridiumSkyblock.getInstance().getDatabaseManager().getIslandBankTableManager().addEntry(islandBank);
             return islandBank;
@@ -622,6 +631,15 @@ public class IslandManager {
         if (islandUpgrade.isPresent()) {
             return islandUpgrade.get();
         } else {
+            IridiumSkyblock.getInstance().getDatabaseManager().getIslandUpgradeTableManager().getEntries().stream()
+                    .filter(islandBank ->
+                            islandBank.getUpgrade().equalsIgnoreCase(upgrade) && islandBank.getIsland().map(Island::getId).orElse(0) == island.getId()
+                    ).findFirst().ifPresent(islandBank ->
+                    {
+                        IridiumSkyblock.getInstance().getLogger().warning("Creating " + upgrade + " Island Upgrade that already exists??");
+                        IridiumSkyblock.getInstance().getPersist().save(IridiumSkyblock.getInstance().getDatabaseManager().getIslandUpgradeTableManager().getEntries());
+                    }
+            );
             IslandUpgrade isUpgrade = new IslandUpgrade(island, upgrade);
             IridiumSkyblock.getInstance().getDatabaseManager().getIslandUpgradeTableManager().addEntry(isUpgrade);
             return isUpgrade;

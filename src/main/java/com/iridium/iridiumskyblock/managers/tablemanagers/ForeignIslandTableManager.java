@@ -1,5 +1,6 @@
 package com.iridium.iridiumskyblock.managers.tablemanagers;
 
+import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandData;
 import com.j256.ormlite.support.ConnectionSource;
@@ -26,6 +27,7 @@ public class ForeignIslandTableManager<T extends IslandData, S> extends TableMan
 
     @Override
     public void addEntry(T t) {
+        IridiumSkyblock.getInstance().getLogs().logs.add("Adding Entry for Island " + t.getIsland().map(Island::getId).orElse(0));
         int index = Collections.binarySearch(getEntries(), t, Comparator.comparing(t1 -> t1.getIsland().map(Island::getId).orElse(0)));
         getEntries().add(index < 0 ? -(index + 1) : index, t);
     }

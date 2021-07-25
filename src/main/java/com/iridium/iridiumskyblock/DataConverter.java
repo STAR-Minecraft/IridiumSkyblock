@@ -1,6 +1,7 @@
 package com.iridium.iridiumskyblock;
 
 import com.iridium.iridiumskyblock.database.Island;
+import com.iridium.iridiumskyblock.database.IslandBank;
 import com.iridium.iridiumskyblock.database.IslandUpgrade;
 
 import java.io.File;
@@ -36,6 +37,24 @@ public class DataConverter {
             }
         }
         IridiumSkyblock.getInstance().getDatabaseManager().getIslandUpgradeTableManager().delete(remove);
+    }
+
+    public static void deleteDuplicateBank() {
+        List<String> islandBanks = new ArrayList<>();
+        List<IslandBank> remove = new ArrayList<>();
+        for (IslandBank islandBank : IridiumSkyblock.getInstance().getDatabaseManager().getIslandBankTableManager().getEntries()) {
+            Optional<Island> island = islandBank.getIsland();
+            if (island.isPresent()) {
+                if (islandBanks.contains(islandBank.getBankItem() + " - " + island.get().getId())) {
+                    remove.add(islandBank);
+                } else {
+                    islandBanks.add(islandBank.getBankItem() + " - " + island.get().getId());
+                }
+            } else {
+                remove.add(islandBank);
+            }
+        }
+        IridiumSkyblock.getInstance().getDatabaseManager().getIslandBankTableManager().delete(remove);
     }
 
     private static void v3_0_0() {

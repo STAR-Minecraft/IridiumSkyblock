@@ -69,6 +69,7 @@ public class IridiumSkyblock extends IridiumCore {
     private Commands commands;
     private Shop shop;
     private Border border;
+    private Logs logs;
 
     private ChunkGenerator chunkGenerator;
 
@@ -213,6 +214,7 @@ public class IridiumSkyblock extends IridiumCore {
                 .checkNow();
 
         DataConverter.deleteDuplicateUpgrades();
+        DataConverter.deleteDuplicateBank();
 
         getLogger().info("----------------------------------------");
         getLogger().info("");
@@ -379,6 +381,7 @@ public class IridiumSkyblock extends IridiumCore {
         this.commands = getPersist().load(Commands.class);
         this.shop = getPersist().load(Shop.class);
         this.border = getPersist().load(Border.class);
+        this.logs = getPersist().load(Logs.class);
 
         for (Color color : Color.values()) {
             if (!border.enabled.containsKey(color)) {
@@ -390,7 +393,7 @@ public class IridiumSkyblock extends IridiumCore {
         if (configuration.distance <= maxSize) {
             configuration.distance = maxSize + 1;
         }
-        
+
         if (inventories.confirmationGUI.yes.slot == null || inventories.confirmationGUI.yes.slot == 0) {
             inventories.confirmationGUI.yes.slot = 15;
         }
@@ -511,6 +514,7 @@ public class IridiumSkyblock extends IridiumCore {
         getPersist().save(commands);
         getPersist().save(shop);
         getPersist().save(border);
+        getPersist().save(logs);
     }
 
     /**
