@@ -213,8 +213,7 @@ public class IridiumSkyblock extends IridiumCore {
                 .setColoredConsoleOutput(true)
                 .checkNow();
 
-        DataConverter.deleteDuplicateUpgrades();
-        DataConverter.deleteDuplicateBank();
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, this::saveData, 0, 20);
 
         getLogger().info("----------------------------------------");
         getLogger().info("");
