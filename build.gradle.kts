@@ -1,5 +1,5 @@
 plugins {
-    java
+    `java-library`
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "6.1.0"
 }
@@ -90,15 +90,31 @@ tasks {
 
 // Set the Java version and vendor
 java {
+    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
         vendor.set(JvmVendorSpec.ADOPTOPENJDK)
     }
 }
 
-// Maven publishing
+// Maven publishing to SoKnight's Nexus repository
 publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+    publications.create<MavenPublication>("mavenJava") {
+        artifactId = "iridiumskyblock"
+
+        // Using compiled JARs instead of new publication creating
+        artifact(tasks["shadowJar"])
+        artifact(tasks["sourcesJar"])
+    }
+
+    repositories {
+        maven {
+            name = "nexus"
+            url = uri("https://repo.soknight.me/repository/releases/")
+            credentials {
+                username = project.property("nexusUsername").toString()
+                password = project.property("nexusPassword").toString()
+            }
+        }
     }
 }
