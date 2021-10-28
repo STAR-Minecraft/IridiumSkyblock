@@ -26,6 +26,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
@@ -228,12 +229,7 @@ public class IridiumSkyblock extends IridiumCore {
                     .checkNow();
         }
 
-        getLogger().info("----------------------------------------");
-        getLogger().info("");
-        getLogger().info(getDescription().getName() + " Enabled!");
-        getLogger().info("Version: " + getDescription().getVersion());
-        getLogger().info("");
-        getLogger().info("----------------------------------------");
+        getLogger().info("IridiumSkyblock fork by StarMC enabled!");
     }
 
     private void registerPlaceholderSupport() {
