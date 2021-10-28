@@ -10,6 +10,7 @@ import com.iridium.iridiumskyblock.configs.inventories.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.IntStream;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Inventories {
@@ -72,13 +73,13 @@ public class Inventories {
             "&7Owner: %island_owner%"
     )));
 
-    public SingleItemGUI membersGUI = new SingleItemGUI(27, "&7Island Members", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
+    public MembersInventoryConfig membersGUI = new MembersInventoryConfig(27, "&7Island Members", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
             "&7Joined: %player_join%",
             "&7Rank: %player_rank%",
             "",
             "&b&l[!] &7Right Click to promote",
             "&b&l[!] &7Left click to demote/kick"
-    )));
+    )), IntStream.range(0, 27).toArray());
     public SingleItemGUI bansGUI = new SingleItemGUI(27, "&7Island Bans", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
             "&7Banned time: %ban_time%",
             "&7Banned by: %banned_by%",

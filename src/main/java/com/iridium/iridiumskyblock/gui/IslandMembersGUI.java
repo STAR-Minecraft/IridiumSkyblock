@@ -4,6 +4,7 @@ import com.iridium.iridiumcore.utils.InventoryUtils;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
+import com.iridium.iridiumskyblock.configs.inventories.MembersInventoryConfig;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.User;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IslandMembersGUI extends IslandGUI {
 
+    private int page = 1;
     private final Map<Integer, User> members;
 
     /**
@@ -35,12 +37,28 @@ public class IslandMembersGUI extends IslandGUI {
     public void addContent(Inventory inventory) {
         inventory.clear();
         members.clear();
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().membersGUI.background);
-        AtomicInteger slot = new AtomicInteger(0);
+        MembersInventoryConfig membersGUI = IridiumSkyblock.getInstance().getInventories().membersGUI;
+        InventoryUtils.fillInventory(inventory, membersGUI.background);
+        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
+        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+
+        int pageSize = membersGUI.displaySlots != null ? membersGUI.displaySlots.length : 0;
+        if(pageSize == 0)
+            pageSize = membersGUI.size;
+
+        int startIndex = pageSize * (page - 1);
+        AtomicInteger slotIndexer = new AtomicInteger(0);
 
         for (User user : getIsland().getMembers()) {
-            int itemSlot = slot.getAndIncrement();
-            inventory.setItem(itemSlot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().membersGUI.item, new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build()));
+            int itemSlotIndex = slotIndexer.getAndIncrement();
+            if (itemSlotIndex < startIndex)
+                continue;
+
+            int itemSlot = membersGUI.findSlot(itemSlotIndex - startIndex);
+            if (itemSlot == -1)
+                break;
+
+            inventory.setItem(itemSlot, ItemStackUtils.makeItem(membersGUI.item, new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build()));
             members.put(itemSlot, user);
         }
     }
@@ -65,6 +83,19 @@ public class IslandMembersGUI extends IslandGUI {
                     break;
             }
             addContent(event.getInventory());
+            return;
+        }
+
+        MembersInventoryConfig membersGUI = IridiumSkyblock.getInstance().getInventories().membersGUI;
+        if (event.getSlot() == membersGUI.size - 7 && page > 1) {
+            page--;
+            event.getWhoClicked().openInventory(getInventory());
+            return;
+        }
+
+        if (event.getSlot() == membersGUI.size - 3) {
+            page++;
+            event.getWhoClicked().openInventory(getInventory());
         }
     }
 

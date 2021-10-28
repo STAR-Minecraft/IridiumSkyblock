@@ -12,9 +12,8 @@ public class SingleItemGUI extends NoItemGUI{
     public Item item;
 
     public SingleItemGUI(int size, String title, Background background, Item item) {
-        this.size = size;
-        this.title = title;
-        this.background = background;
+        super(size, title, background);
         this.item = item;
     }
+
 }
