@@ -9,12 +9,14 @@ import com.iridium.iridiumskyblock.PermissionType;
 import com.iridium.iridiumskyblock.Setting;
 import com.iridium.iridiumskyblock.SettingType;
 import com.iridium.iridiumskyblock.api.IslandSettingChangeEvent;
+import com.iridium.iridiumskyblock.configs.IslandSettings;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandSetting;
 import com.iridium.iridiumskyblock.database.User;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -42,9 +44,27 @@ public class IslandSettingsGUI extends IslandGUI {
         inventory.clear();
         InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().islandSettingsGUI.background);
 
+        IslandSettings.ValueAliases valueAliases = IridiumSkyblock.getInstance().getIslandSettings().valueAliases;
         for (Map.Entry<String, Setting> setting : IridiumSkyblock.getInstance().getSettingsList().entrySet()) {
             IslandSetting islandSetting = IridiumSkyblock.getInstance().getIslandManager().getIslandSetting(getIsland(), setting.getKey(), setting.getValue().getDefaultValue());
-            inventory.setItem(setting.getValue().getItem().slot, ItemStackUtils.makeItem(setting.getValue().getItem(), Collections.singletonList(new Placeholder("value", WordUtils.capitalize(islandSetting.getValue().toLowerCase().replace("_", " "))))));
+            SettingType settingType = SettingType.getByName(setting.getKey());
+
+            // StarMC fork: make setting values customizable in the config file
+            String rawValue = islandSetting.getValue();
+            String value;
+            switch (settingType) {
+                case TIME:
+                    value = valueAliases.findTimeAlias(rawValue);
+                    break;
+                case WEATHER:
+                    value = valueAliases.findWeatherTypeAlias(rawValue);
+                    break;
+                default:
+                    value = valueAliases.findBooleanAlias(rawValue);
+                    break;
+            }
+
+            inventory.setItem(setting.getValue().getItem().slot, ItemStackUtils.makeItem(setting.getValue().getItem(), Collections.singletonList(new Placeholder("value", value))));
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {

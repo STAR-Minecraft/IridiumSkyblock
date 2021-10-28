@@ -1,13 +1,17 @@
 package com.iridium.iridiumskyblock.configs;
 
+import com.google.common.collect.ImmutableMap;
 import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.dependencies.fasterxml.annotation.JsonIgnoreProperties;
 import com.iridium.iridiumcore.dependencies.xseries.XMaterial;
 import com.iridium.iridiumskyblock.IslandTime;
 import com.iridium.iridiumskyblock.IslandWeatherType;
 import com.iridium.iridiumskyblock.Setting;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * The Island permission configuration used by IridiumSkyblock (permissions.yml).
@@ -15,6 +19,63 @@ import java.util.Arrays;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IslandSettings {
+
+    // StarMC fork: added user-friendly customizable value aliases
+    public ValueAliases valueAliases = new ValueAliases();
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ValueAliases {
+
+        public Map<Boolean, String> booleanAliases = ImmutableMap.<Boolean, String>builder()
+                .put(true, "True")
+                .put(false, "False")
+                .build();
+
+        public Map<IslandTime, String> timeAliases = ImmutableMap.<IslandTime, String>builder()
+                .put(IslandTime.DEFAULT, "Default")
+                .put(IslandTime.MORNING, "Morning")
+                .put(IslandTime.DAY, "Dat")
+                .put(IslandTime.EVENING, "Evening")
+                .put(IslandTime.NIGHT, "Night")
+                .build();
+
+        public Map<IslandWeatherType, String> weatherTypeAliases = ImmutableMap.<IslandWeatherType, String>builder()
+                .put(IslandWeatherType.DEFAULT, "Default")
+                .put(IslandWeatherType.RAINING, "Raining")
+                .put(IslandWeatherType.CLEAR, "Clear")
+                .build();
+
+        public String findBooleanAlias(String booleanKey) {
+            switch (booleanKey.toLowerCase()) {
+                case "true":
+                    return booleanAliases.getOrDefault(true, booleanKey);
+                case "false":
+                    return booleanAliases.getOrDefault(false, booleanKey);
+                default:
+                    return booleanKey;
+            }
+        }
+
+        public String findTimeAlias(String timeKey) {
+            try {
+                IslandTime islandTime = IslandTime.valueOf(timeKey.toUpperCase());
+                return timeAliases.getOrDefault(islandTime, timeKey);
+            } catch (IllegalArgumentException ignored) {
+                return timeKey;
+            }
+        }
+
+        public String findWeatherTypeAlias(String weatherTypeKey) {
+            try {
+                IslandWeatherType islandWeatherType = IslandWeatherType.valueOf(weatherTypeKey.toUpperCase());
+                return weatherTypeAliases.getOrDefault(islandWeatherType, weatherTypeKey);
+            } catch (IllegalArgumentException ignored) {
+                return weatherTypeKey;
+            }
+        }
+
+    }
 
     public Setting mobSpawn = new Setting(new Item(XMaterial.ZOMBIE_HEAD, 10, 1, "&b&lMob Spawn", Arrays.asList("&7Allow mobs to spawn on your Island.", "", "&b&lValue", "&7%value%")), "true");
     public Setting leafDecay = new Setting(new Item(XMaterial.OAK_LEAVES, 11, 1, "&b&lLeaf Decay", Arrays.asList("&7Allow leaves to decay on your Island.", "", "&b&lValue", "&7%value%")), "true");

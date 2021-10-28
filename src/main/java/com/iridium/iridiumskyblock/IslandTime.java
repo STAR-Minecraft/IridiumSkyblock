@@ -8,10 +8,10 @@ import lombok.Getter;
 public enum IslandTime {
 
     DEFAULT(0, true),
-    DAY(1000, false),
-    NOON(6000, false),
-    MIDNIGHT(18000, false),
-    NIGHT(13000, false);
+    MORNING(23000, false),
+    DAY(6000, false),
+    EVENING(13000, false),
+    NIGHT(18000, false);
 
     private final int time;
     private final boolean relative;
