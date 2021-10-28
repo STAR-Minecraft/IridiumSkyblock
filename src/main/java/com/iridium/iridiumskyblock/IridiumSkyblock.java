@@ -26,7 +26,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
@@ -129,6 +128,7 @@ public class IridiumSkyblock extends IridiumCore {
      */
     @Override
     public void onLoad() {
+        instance = this;
         super.onLoad();
 
         // Initialize the ChunkGenerator
