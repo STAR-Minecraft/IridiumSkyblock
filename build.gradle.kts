@@ -10,6 +10,13 @@ description = "IridiumSkyblock"
 
 repositories {
     mavenCentral()
+    maven {
+        credentials {
+            username = project.property("nexusUsername").toString()
+            password = project.property("nexusPassword").toString()
+        }
+        url = uri("https://repo.soknight.me/repository/releases/")
+    }
     maven("https://repo.mvdw-software.com/content/groups/public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
@@ -24,7 +31,7 @@ repositories {
 dependencies {
     // Dependencies that we want to shade in
     implementation("org.jetbrains:annotations:22.0.0")
-    implementation("com.iridium:IridiumCore:1.3.9")
+    implementation("com.iridium:iridiumcore:1.3.9")
     implementation("org.bstats:bstats-bukkit:2.2.1")
     implementation("com.j256.ormlite:ormlite-core:5.7")
     implementation("com.j256.ormlite:ormlite-jdbc:5.7")
