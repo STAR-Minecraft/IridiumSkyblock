@@ -2,11 +2,12 @@ package com.iridium.iridiumskyblock.commands;
 
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
+import org.bukkit.command.CommandSender;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.command.CommandSender;
 
 /**
  * Command which display plugin information to the user.
@@ -16,7 +17,7 @@ public class AboutCommand extends Command {
     /*
     Please don't add yourself to this list, if you contribute enough I (Peaches) will add you.
     */
-    private final List<String> contributors = Arrays.asList("das_", "SlashRemix");
+    private final List<String> contributors = Arrays.asList("SoKnight", "das_", "SlashRemix");
 
     /**
      * The default constructor.
@@ -35,11 +36,11 @@ public class AboutCommand extends Command {
      */
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        sender.sendMessage(StringUtils.color("&7Plugin Name: &bIridiumSkyblock"));
-        sender.sendMessage(StringUtils.color("&7Plugin Version: &b" + IridiumSkyblock.getInstance().getDescription().getVersion()));
-        sender.sendMessage(StringUtils.color("&7Plugin Author: &bPeaches_MLG"));
-        sender.sendMessage(StringUtils.color("&7Plugin Contributors: &b" + String.join(", ", contributors)));
-        sender.sendMessage(StringUtils.color("&7Plugin Donations: &bwww.patreon.com/Peaches_MLG"));
+        sender.sendMessage(StringUtils.color("&7[Информация о IridiumSkyblock]"));
+        sender.sendMessage(StringUtils.color("&7Версия: &b" + IridiumSkyblock.getInstance().getDescription().getVersion() + " (Неофициальная)"));
+        sender.sendMessage(StringUtils.color("&7Оригинальный автор: &bPeaches_MLG"));
+        sender.sendMessage(StringUtils.color("&7Другие разработчики: &b" + String.join(", ", contributors)));
+        sender.sendMessage(StringUtils.color("&8Используется собственный форк проекта StarMC."));
 
         return true;
     }
