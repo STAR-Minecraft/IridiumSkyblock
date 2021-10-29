@@ -1,20 +1,14 @@
 name: IridiumSkyblock
-version: ${version}
-description: Skyblock Redefined
 main: com.iridium.iridiumskyblock.IridiumSkyblock
-api-version: '1.13'
-author: Peaches_MLG
-depend: [ Vault ]
-softdepend:
-  - "MVdWPlaceholderAPI"
-  - "PlaceholderAPI"
-  - "Essentials"
-  - "EssentialsSpawn"
-  - "RoseStacker"
-  - "WorldEdit"
-loadbefore:
-  - "Multiverse-Core"
+version: ${version}
+authors: [Peaches_MLG, SoKnight]
+depend: [Vault]
+softdepend: [PlaceholderAPI, Essentials, EssentialsSpawn, RoseStacker, WildStacker, UltimateStacker, WorldEdit]
+loadbefore: [Multiverse-Core]
+description: Skyblock Redefined
+api-version: 1.13
+
 commands:
   iridiumskyblock:
-    aliases: [ "island", is ]
+    aliases: [island, is]
     description: Main plugin command
