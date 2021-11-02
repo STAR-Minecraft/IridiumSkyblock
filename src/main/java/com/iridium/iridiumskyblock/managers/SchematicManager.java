@@ -27,10 +27,16 @@ public class SchematicManager {
     private final boolean fawe = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit") || Bukkit.getPluginManager().isPluginEnabled("AsyncWorldEdit");
 
     public SchematicManager() {
-        File parent = new File(IridiumSkyblock.getInstance().getDataFolder(), "schematics");
         this.schematicPaster = worldEdit || fawe ? new WorldEdit() : new Schematic();
         this.schematicFiles = new HashMap<>();
-        for (File file : parent.listFiles()) {
+        loadSchematicFiles();
+    }
+
+    public void loadSchematicFiles() {
+        schematicFiles.clear();
+
+        File schematicsFolder = new File(IridiumSkyblock.getInstance().getDataFolder(), "schematics");
+        for (File file : schematicsFolder.listFiles()) {
             schematicFiles.put(file.getName(), file);
         }
     }
