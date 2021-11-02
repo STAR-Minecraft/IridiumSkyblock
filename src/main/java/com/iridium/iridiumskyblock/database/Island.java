@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -182,6 +183,13 @@ public final class Island {
         String[] params = home.split(",");
         World world = IridiumSkyblock.getInstance().getIslandManager().getWorld();
         return new Location(world, Double.parseDouble(params[0]), Double.parseDouble(params[1]), Double.parseDouble(params[2]), Float.parseFloat(params[4]), Float.parseFloat(params[3])).add(getCenter(world));
+    }
+
+    public double[] getHomeOffsetXYZ() {
+        return Arrays.stream(home.split(","))
+                .limit(3)
+                .mapToDouble(Double::parseDouble)
+                .toArray();
     }
 
     /**
