@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +25,9 @@ public class LocationUtils {
             XMaterial.WATER,
             XMaterial.LAVA
     ).map(XMaterial::parseMaterial).collect(Collectors.toList());
+
+    private static final Logger LOGGER = IridiumSkyblock.getInstance().getLogger();
+    private static final String INCORRECT_LOCATION_FORMAT = "Location (%s %s %s) with home offset (%s %s %s) is incorrect!";
 
     /**
      * Is a location safe to teleport a player to
@@ -39,28 +43,67 @@ public class LocationUtils {
     }
 
     /**
-     * Gets a safe location on the island
+     * Gets a safe location on the island silently
+     * @see #getSafeLocation(Location, Island, boolean)
      *
      * @param location The location we want to teleport
      * @param island   The island we are inside
      * @return A safe Location, if none found return original location
      */
     public static Location getSafeLocation(@NotNull Location location, Island island) {
+        return getSafeLocation(location, island, false);
+    }
+
+    /**
+     * Gets a safe location on the island
+     *
+     * @param location The location we want to teleport
+     * @param island   The island we are inside
+     * @param verbose  Additional information printing (about location searching steps)
+     * @return A safe Location, if none found return original location
+     */
+    public static synchronized Location getSafeLocation(@NotNull Location location, Island island, boolean verbose) {
         World world = location.getWorld();
         if (world == null) return location;
         if (island == null) return location;
         if (isSafe(location)) return location;
 
+        if (verbose) {
+            double[] homeOffset = island.getHomeOffsetXYZ();
+            LOGGER.warning(String.format(INCORRECT_LOCATION_FORMAT,
+                    location.getX(), location.getY(), location.getZ(),
+                    homeOffset[0], homeOffset[1], homeOffset[2]
+            ));
+        }
+
         Location highest = getHighestLocation(location.getBlockX(), location.getBlockZ(), world);
-        if (isSafe(highest)) return highest;
+        if (isSafe(highest)) {
+            if (verbose) {
+                LOGGER.warning(String.format("Using same highest location (%s, %s, %s)!",
+                        highest.getX(), highest.getY(), highest.getZ()
+                ));
+            }
+            return highest;
+        }
 
         Location pos1 = island.getPos1(world);
         Location pos2 = island.getPos2(world);
         for (int x = pos1.getBlockX(); x <= pos2.getBlockX(); x++) {
             for (int z = pos1.getBlockZ(); z <= pos2.getBlockZ(); z++) {
                 Location newLocation = getHighestLocation(x, z, world);
-                if (isSafe(newLocation)) return newLocation;
+                if (isSafe(newLocation)) {
+                    if (verbose) {
+                        LOGGER.warning(String.format("Using found safe location in the island region (%s, %s, %s)!",
+                                highest.getX(), highest.getY(), highest.getZ()
+                        ));
+                    }
+                    return newLocation;
+                }
             }
+        }
+
+        if (verbose) {
+            LOGGER.severe("No safe location was found!");
         }
         return location;
     }

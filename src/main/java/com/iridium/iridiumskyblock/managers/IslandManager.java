@@ -155,15 +155,25 @@ public class IslandManager {
     }
 
     /**
-     * Teleports a player to the Island's home
+     * Teleports a player to the Island's home silently
      *
      * @param player The player we are teleporting
      * @param island The island we are teleporting them to
      */
     private void teleportHome(@NotNull Player player, @NotNull Island island) {
-        player.setFallDistance(0);
-        PaperLib.teleportAsync(player, LocationUtils.getSafeLocation(island.getHome(), island), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        teleportHome(player, island, false);
+    }
 
+    /**
+     * Teleports a player to the Island's home
+     *
+     * @param player  The player we are teleporting
+     * @param island  The island we are teleporting them to
+     * @param verbose Printing of an additional location finding information
+     */
+    private void teleportHome(@NotNull Player player, @NotNull Island island, boolean verbose) {
+        player.setFallDistance(0);
+        PaperLib.teleportAsync(player, LocationUtils.getSafeLocation(island.getHome(), island, verbose), PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
     /**
@@ -227,7 +237,7 @@ public class IslandManager {
         player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().creatingIsland.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
         createIsland(player, islandCreateEvent.getIslandName(), islandCreateEvent.getSchematicConfig()).thenAccept(island ->
                 Bukkit.getScheduler().runTask(IridiumSkyblock.getInstance(), () -> {
-                    teleportHome(player, island);
+                    teleportHome(player, island, true);
                     IridiumSkyblock.getInstance().getNms().sendTitle(player, IridiumSkyblock.getInstance().getConfiguration().islandCreateTitle, IridiumSkyblock.getInstance().getConfiguration().islandCreateSubTitle, 20, 40, 20);
                 })
         );
@@ -344,7 +354,6 @@ public class IslandManager {
         }
 
         pasteSchematic(island, schematicConfig).thenRun(() -> {
-
             Location islandHome = island.getCenter(IridiumSkyblock.getInstance().getIslandManager().getWorld()).add(schematicConfig.xHome, schematicConfig.yHome, schematicConfig.zHome);
             islandHome.setYaw(schematicConfig.yawHome);
             island.setHome(islandHome);
