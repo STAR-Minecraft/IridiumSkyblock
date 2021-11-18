@@ -3,7 +3,7 @@ main: com.iridium.iridiumskyblock.IridiumSkyblock
 version: ${version}
 authors: [Peaches_MLG, SoKnight]
 depend: [Vault]
-softdepend: [PlaceholderAPI, Essentials, EssentialsSpawn, RoseStacker, WildStacker, UltimateStacker, WorldEdit]
+softdepend: [PlaceholderAPI, Essentials, EssentialsSpawn, RoseStacker, WildStacker, UltimateStacker, WorldEdit, AdvancedSkins]
 loadbefore: [Multiverse-Core]
 description: Skyblock Redefined
 api-version: 1.13
