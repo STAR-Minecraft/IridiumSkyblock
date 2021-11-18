@@ -31,10 +31,8 @@ dependencies {
     // Dependencies that we want to shade in
     implementation("org.jetbrains:annotations:22.0.0")
     implementation("com.iridium:iridiumcore:1.3.9")
-    implementation("org.bstats:bstats-bukkit:2.2.1")
     implementation("com.j256.ormlite:ormlite-core:5.7")
     implementation("com.j256.ormlite:ormlite-jdbc:5.7")
-    implementation("de.jeff_media:SpigotUpdateChecker:1.3.0")
 
     // Other dependencies that are not required or already available at runtime
     compileOnly("org.projectlombok:lombok:1.18.22")
@@ -68,8 +66,6 @@ tasks {
 
         // Relocate dependencies
         relocate("com.j256.ormlite")
-        relocate("org.bstats")
-        relocate("de.jeff_media.updatechecker")
 
         // Remove unnecessary files from the jar
         minimize()

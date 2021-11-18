@@ -18,11 +18,8 @@ import com.iridium.iridiumskyblock.support.RoseStackerSupport;
 import com.iridium.iridiumskyblock.support.StackerSupport;
 import com.iridium.iridiumskyblock.support.WildStackerSupport;
 import com.iridium.iridiumskyblock.utils.PlayerUtils;
-import de.jeff_media.updatechecker.UpdateChecker;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
@@ -216,17 +213,6 @@ public class IridiumSkyblock extends IridiumCore {
         }, 1);
 
         resetIslandMissions();
-
-        Metrics metrics = new Metrics(this, 5825);
-        metrics.addCustomChart(new SimplePie("database_type", () -> sql.driver.name()));
-
-        if (getConfiguration().enableCheckVersion) {
-            UpdateChecker.init(this, 62480)
-                    .checkEveryXHours(24)
-                    .setDownloadLink(62480)
-                    .setColoredConsoleOutput(true)
-                    .checkNow();
-        }
 
         getLogger().info("IridiumSkyblock fork by StarMC enabled!");
     }
