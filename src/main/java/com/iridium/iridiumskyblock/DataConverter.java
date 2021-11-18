@@ -4,6 +4,8 @@ import com.google.common.io.CharStreams;
 import com.iridium.iridiumskyblock.configs.SQL;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class DataConverter {
+
+    private static final String PATCH_RESOURCE_PATH_DEFAULT = "dbpatches/patch_%d.sql";
+    private static final String PATCH_RESOURCE_PATH_DRIVER = "dbpatches/patch_%d_%s.sql";
 
     public static void copyLegacyData() {
         String[] fileNames = Objects.requireNonNull(IridiumSkyblock.getInstance().getDataFolder().list());
@@ -77,12 +82,18 @@ public class DataConverter {
     }
 
     private static InputStream findPatchInputStream(int version, SQL.Driver driver) {
-        InputStream inputStream = IridiumSkyblock.getInstance().getResource("patch_" + version + ".sql");
+        InputStream inputStream = getResource(String.format(PATCH_RESOURCE_PATH_DEFAULT, version));
         if (inputStream == null) {
-            inputStream = IridiumSkyblock.getInstance().getResource("patch_" + version + "_" + driver.name().toLowerCase() + ".sql");
+            String driverId = driver.name().toLowerCase();
+            inputStream = getResource(String.format(PATCH_RESOURCE_PATH_DRIVER, version, driverId));
         }
 
+        System.out.printf("Found resource for v.%d and driver %s is: %s%n", version, driver.name(), inputStream);
         return inputStream;
+    }
+
+    private static @Nullable InputStream getResource(@NotNull String path) {
+        return IridiumSkyblock.getInstance().getResource(path);
     }
 
 }

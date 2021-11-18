@@ -535,7 +535,7 @@ public class IridiumSkyblock extends IridiumCore {
     private void saveSchematics() {
         File schematicFolder = new File(getDataFolder(), "schematics");
         if (!schematicFolder.exists()) {
-            schematicFolder.mkdir();
+            schematicFolder.mkdirs();
         }
 
         // Return if there are already schematics in the schematics folder
@@ -555,10 +555,11 @@ public class IridiumSkyblock extends IridiumCore {
     }
 
     private void saveFile(File parent, String name) {
+        String resourcePath = "schematics/" + name;
         File file = new File(parent, name);
         if (!file.exists()) {
             try {
-                InputStream source = getResource(name);
+                InputStream source = getResource(resourcePath);
                 Path target = file.toPath();
 
                 if (source == null) return;
