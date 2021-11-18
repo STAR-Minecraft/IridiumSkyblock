@@ -17,7 +17,6 @@ repositories {
         }
         url = uri("https://repo.soknight.me/repository/releases/")
     }
-    maven("https://repo.mvdw-software.com/content/groups/public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://ci.ender.zone/plugin/repository/everything/")
@@ -43,9 +42,6 @@ dependencies {
     compileOnly("net.ess3:EssentialsXSpawn:2.16.1")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("me.clip:placeholderapi:2.9.2")
-    compileOnly("be.maximvdw:MVdWPlaceholderAPI:2.1.1-SNAPSHOT") {
-        exclude("org.spigotmc")
-    }
     compileOnly("com.gc:AdvancedSpawners:1.2.6")
     compileOnly("dev.rosewood:rosestacker:1.2.6")
     compileOnly("com.github.OmerBenGera:WildStackerAPI:master")
