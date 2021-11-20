@@ -1,5 +1,9 @@
 package com.iridium.iridiumskyblock.gui;
 
+import com.iridium.iridiumcore.Background;
+import com.iridium.iridiumcore.Item;
+import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.configs.inventories.NoItemGUI;
@@ -9,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -72,4 +77,24 @@ public abstract class GUI implements InventoryHolder {
      * Called when updating the Inventories contents
      */
     public abstract void addContent(Inventory inventory);
+
+    protected void preFillBackground(Inventory inventory, Background background) {
+        InventoryUtils.fillInventory(inventory, background);
+
+        Item item = IridiumSkyblock.getInstance().getInventories().footerLineItem;
+        if (hasFooterLine() && item != null) {
+            int size = inventory.getSize();
+            int startIndex = size - 9;
+
+            ItemStack bukkitItem = ItemStackUtils.makeItem(item);
+            for (int slot = startIndex; slot < size; slot++) {
+                inventory.setItem(slot, bukkitItem);
+            }
+        }
+    }
+
+    protected boolean hasFooterLine() {
+        return noItemGUI.hasFooterLine;
+    }
+
 }

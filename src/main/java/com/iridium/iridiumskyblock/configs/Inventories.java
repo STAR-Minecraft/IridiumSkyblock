@@ -16,9 +16,10 @@ import java.util.stream.IntStream;
 public class Inventories {
 
     @JsonIgnore
-    private final Background background1 = new Background(ImmutableMap.<Integer, Item>builder().build());
+    private final Background emptyBackground = new Background(ImmutableMap.<Integer, Item>builder().build());
+
     @JsonIgnore
-    private final Background background2 = new Background(ImmutableMap.<Integer, Item>builder()
+    private final Background lightGrayLineBackground = new Background(ImmutableMap.<Integer, Item>builder()
             .put(9, new Item(XMaterial.LIGHT_GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()))
             .put(10, new Item(XMaterial.LIGHT_GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()))
             .put(11, new Item(XMaterial.LIGHT_GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()))
@@ -32,7 +33,9 @@ public class Inventories {
 
     public Item backButton = new Item(XMaterial.NETHER_STAR, -5, 1, "&c&lBack", Collections.emptyList());
 
-    public InventoryConfig islandBorder = new InventoryConfig(27, "&7Island Border", background2, ImmutableMap.<String, Item>builder()
+    public Item footerLineItem;
+
+    public InventoryConfig islandBorder = new InventoryConfig(27, "&7Island Border", lightGrayLineBackground, ImmutableMap.<String, Item>builder()
             .put("is border blue", new Item(XMaterial.BLUE_STAINED_GLASS_PANE, 10, 1, "&b&lBlue", Collections.emptyList()))
             .put("is border red", new Item(XMaterial.RED_STAINED_GLASS_PANE, 12, 1, "&c&lRed", Collections.emptyList()))
             .put("is border green", new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 14, 1, "&a&lGreen", Collections.emptyList()))
@@ -40,7 +43,7 @@ public class Inventories {
             .build()
     );
 
-    public InventoryConfig islandMenu = new InventoryConfig(45, "&7Island Menu", background1, ImmutableMap.<String, Item>builder()
+    public InventoryConfig islandMenu = new InventoryConfig(45, "&7Island Menu", emptyBackground, ImmutableMap.<String, Item>builder()
             .put("is regen", new Item(XMaterial.GRASS_BLOCK, 12, 1, "&b&lIsland Regen", Collections.singletonList("&7Regenerate your island")))
             .put("is boosters", new Item(XMaterial.EXPERIENCE_BOTTLE, 23, 1, "&b&lIsland Boosters", Collections.singletonList("&7View your island boosters")))
             .put("is home", new Item(XMaterial.WHITE_BED, 13, 1, "&b&lIsland Home", Collections.singletonList("&7Teleport to your island home")))
@@ -56,38 +59,47 @@ public class Inventories {
             .build()
     );
 
-    public InventoryConfig missionSelectGUI = new InventoryConfig(27, "&7Island Missions", background2, ImmutableMap.<String, Item>builder()
+    public InventoryConfig missionSelectGUI = new InventoryConfig(27, "&7Island Missions", lightGrayLineBackground, ImmutableMap.<String, Item>builder()
             .put("is missions once", new Item(XMaterial.WRITABLE_BOOK, 15, 1, "&b&lQuests", Collections.emptyList()))
             .put("is missions daily", new Item(XMaterial.DIAMOND_SWORD, 11, 1, "&b&lDaily Missions", Collections.emptyList()))
             .build()
     );
 
-    public InventoryConfig blockValueSelectGUI = new InventoryConfig(27, "Block Values", background2, ImmutableMap.<String, Item>builder()
+    public InventoryConfig blockValueSelectGUI = new InventoryConfig(27, "Block Values", lightGrayLineBackground, ImmutableMap.<String, Item>builder()
             .put("is blockvalues block", new Item(XMaterial.EMERALD_BLOCK, 11, 1, "&b&lValuable Blocks", Collections.emptyList()))
             .put("is blockvalues spawner", new Item(XMaterial.SPAWNER, 15, 1, "&b&lValuable Spawners", Collections.emptyList()))
             .build()
     );
 
-    public SingleItemGUI visitGUI = new SingleItemGUI(45, "&7Visit an Island", background1, new Item(XMaterial.PLAYER_HEAD, 1, "&b&l%island_name%", "%island_owner%", Arrays.asList(
+    public SingleItemGUI visitGUI = new SingleItemGUI(45, "&7Visit an Island", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 1, "&b&l%island_name%", "%island_owner%", Arrays.asList(
             "&7Created: %island_create%",
             "&7Owner: %island_owner%"
     )));
 
-    public MembersInventoryConfig membersGUI = new MembersInventoryConfig(27, "&7Island Members", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
-            "&7Joined: %player_join%",
-            "&7Rank: %player_rank%",
-            "",
-            "&b&l[!] &7Right Click to promote",
-            "&b&l[!] &7Left click to demote/kick"
-    )), IntStream.range(0, 27).toArray());
-    public SingleItemGUI bansGUI = new SingleItemGUI(27, "&7Island Bans", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
+    public MembersInventoryConfig membersGUI = new MembersInventoryConfig(
+            36,
+            "&7Island Members",
+            emptyBackground,
+            new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
+                    "&7Joined: %player_join%",
+                    "&7Rank: %player_rank%",
+                    "",
+                    "&b&l[!] &7Right Click to promote",
+                    "&b&l[!] &7Left click to demote/kick"
+            )),
+            new Item(XMaterial.PAPER, 27, 1, "&b&lVisitors", null),
+            new Item(XMaterial.BARRIER, 35, 1, "&b&lBanned Players", null),
+            IntStream.range(0, 27).toArray()
+    );
+
+    public SingleItemGUI bansGUI = new SingleItemGUI(27, "&7Island Bans", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
             "&7Banned time: %ban_time%",
             "&7Banned by: %banned_by%",
             "",
             "&b&l[!] &7Left Click to unban"
     )));
 
-    public SingleItemGUI trustedGUI = new SingleItemGUI(27, "&7Trusted Members", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%",
+    public SingleItemGUI trustedGUI = new SingleItemGUI(27, "&7Trusted Members", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%",
             "%player_name%", Arrays.asList(
             "&7Date: %player_join%",
             "&7Trusted By: %trustee%",
@@ -95,7 +107,7 @@ public class Inventories {
             "&b&l [!] &7Left click to untrust"
     )));
 
-    public SingleItemGUI visitorsGUI = new SingleItemGUI(27, "&7Island Visitors", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%",
+    public SingleItemGUI visitorsGUI = new SingleItemGUI(27, "&7Island Visitors", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%",
             "%player_name%", Arrays.asList(
             "&7Has Island: %has_island%",
             "",
@@ -103,7 +115,7 @@ public class Inventories {
             "&b&l[!] &7Right Click to ban this visitor from your island"
     )));
 
-    public IslandTopInventoryConfig islandTopGUI = new IslandTopInventoryConfig(27, "&7Top Islands", background1, new Item(XMaterial.PLAYER_HEAD, 1, "&b&lIsland Owner: &f%island_owner% &7(#%island_rank%)", "%island_owner%", Arrays.asList(
+    public IslandTopInventoryConfig islandTopGUI = new IslandTopInventoryConfig(27, "&7Top Islands", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 1, "&b&lIsland Owner: &f%island_owner% &7(#%island_rank%)", "%island_owner%", Arrays.asList(
             "",
             "&b&l * &7Island Name: &b%island_name%",
             "&b&l * &7Island Rank: &b%island_rank%",
@@ -119,11 +131,11 @@ public class Inventories {
             "&b&l[!] &bLeft Click to Teleport to this Island."
     )), new Item(XMaterial.BARRIER, 1, " ", Collections.emptyList()));
 
-    public ConfirmationInventoryConfig confirmationGUI = new ConfirmationInventoryConfig(27, "&7Are you sure?", background2, new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 15, 1, "&a&lYes", Collections.emptyList()), new Item(XMaterial.RED_STAINED_GLASS_PANE, 11, 1, "&c&lNo", Collections.emptyList()));
+    public ConfirmationInventoryConfig confirmationGUI = new ConfirmationInventoryConfig(27, "&7Are you sure?", lightGrayLineBackground, new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 15, 1, "&a&lYes", Collections.emptyList()), new Item(XMaterial.RED_STAINED_GLASS_PANE, 11, 1, "&c&lNo", Collections.emptyList()));
 
-    public NoItemGUI bankGUI = new NoItemGUI(27, "&7Island Bank", background2);
+    public NoItemGUI bankGUI = new NoItemGUI(27, "&7Island Bank", lightGrayLineBackground);
 
-    public LogInventoryConfig logsGUI = new LogInventoryConfig(27, "&7Island Logs",
+    public LogInventoryConfig logsGUI = new LogInventoryConfig(27, "&7Island Logs", lightGrayLineBackground,
             new Item(XMaterial.PLAYER_HEAD, 10, 1, "&b&lIsland Members", "%island_owner%", Arrays.asList("", "&7Page %current_page%/%max_page%", "&b&l[!] &bLeft click to view Previous Page", "&b&l[!] &bRight click to view Next Page")),
             new Item(XMaterial.EMERALD, 11, 1, "&b&lIsland Trusts", Arrays.asList("", "&7Page %current_page%/%max_page%", "&b&l[!] &bLeft click to view Previous Page", "&b&l[!] &bRight click to view Next Page")),
             new Item(XMaterial.LAPIS_LAZULI, 12, 1, "&b&lIsland Invites", Arrays.asList("", "&7Page %current_page%/%max_page%", "&b&l[!] &bLeft click to view Previous Page", "&b&l[!] &bRight click to view Next Page")),
@@ -144,51 +156,52 @@ public class Inventories {
             "&b%user% Withdrew %amount% %type% (%days% days %hours% hours %minutes% minutes %seconds% seconds ago)",
             "&b%user% Purchased %type% booster (%days% days %hours% hours %minutes% minutes %seconds% seconds ago)",
             "&b%user% Purchased %type% upgrade (%days% days %hours% hours %minutes% minutes %seconds% seconds ago)",
-            "&b%user% redeemed %type% reward (%days% days %hours% hours %minutes% minutes %seconds% seconds ago)",
-            background2);
+            "&b%user% redeemed %type% reward (%days% days %hours% hours %minutes% minutes %seconds% seconds ago)"
+    );
 
-    public NoItemGUI upgradesGUI = new NoItemGUI(27, "&7Island Upgrades", background2);
+    public NoItemGUI upgradesGUI = new NoItemGUI(27, "&7Island Upgrades", lightGrayLineBackground);
 
-    public NoItemGUI boostersGUI = new NoItemGUI(27, "&7Island Boosters", background2);
+    public NoItemGUI boostersGUI = new NoItemGUI(27, "&7Island Boosters", lightGrayLineBackground);
 
-    public SingleItemGUI warpsGUI = new SingleItemGUI(27, "&7%island_name%'s Island Warps", background2, new Item(
+    public SingleItemGUI warpsGUI = new SingleItemGUI(27, "&7%island_name%'s Island Warps", lightGrayLineBackground, new Item(
             XMaterial.GREEN_STAINED_GLASS_PANE, 1, "&b&l%warp_name%",
             Arrays.asList(
                     "&7%description%",
                     "",
                     "&b&l[!] &bLeft Click to Teleport",
                     "&b&l[!] &bRight Click to Delete"
-            )));
+            ))
+    );
 
-    public BlockValuesInventoryConfig blockValue = new BlockValuesInventoryConfig(27, "&7Block Values", background1, Collections.singletonList("&bValue per block: &7%value%"));
+    public BlockValuesInventoryConfig blockValue = new BlockValuesInventoryConfig(27, "&7Block Values", emptyBackground, Collections.singletonList("&bValue per block: &7%value%"));
 
-    public SingleItemGUI islandInvitesGUI = new SingleItemGUI(27, "&7Island Invites", background1, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
+    public SingleItemGUI islandInvitesGUI = new SingleItemGUI(27, "&7Island Invites", emptyBackground, new Item(XMaterial.PLAYER_HEAD, 0, 1, "&b&l%player_name%", "%player_name%", Arrays.asList(
             "&7Invited By: %inviter%",
             "&7Time: %time%",
             "",
             "&b&l[!] &7Click to un-invite"
     )));
 
-    public NoItemGUI islandSchematicGUI = new NoItemGUI(27, "&7Select a Schematic", background2);
+    public NoItemGUI islandSchematicGUI = new NoItemGUI(27, "&7Select a Schematic", lightGrayLineBackground);
 
-    public NoItemGUI dailyMissionGUI = new NoItemGUI(27, "&7Daily Island Missions", background2);
+    public NoItemGUI dailyMissionGUI = new NoItemGUI(27, "&7Daily Island Missions", lightGrayLineBackground);
 
-    public NoItemGUI missionsGUI = new NoItemGUI(45, "&7Island Missions", background1);
+    public NoItemGUI missionsGUI = new NoItemGUI(45, "&7Island Missions", emptyBackground);
 
-    public NoItemGUI islandPermissionsGUI = new NoItemGUI(54, "&7Island Permissions", background1);
+    public NoItemGUI islandPermissionsGUI = new NoItemGUI(54, "&7Island Permissions", emptyBackground);
 
-    public NoItemGUI islandSettingsGUI = new NoItemGUI(36, "&7Island Settings", background1);
+    public NoItemGUI islandSettingsGUI = new NoItemGUI(36, "&7Island Settings", emptyBackground);
 
-    public IslandRanksInventoryConfig islandRanksGUI = new IslandRanksInventoryConfig(27, "&7Island Permissions", background1,
+    public IslandRanksInventoryConfig islandRanksGUI = new IslandRanksInventoryConfig(27, "&7Island Permissions", emptyBackground,
             new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 11, 1, "&b&lOwner", Collections.singletonList("&b%members%")),
             new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 12, 1, "&b&lCo-Owner", Collections.singletonList("&b%members%")),
             new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 13, 1, "&b&lModerator", Collections.singletonList("&b%members%")),
             new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 14, 1, "&b&lMember", Collections.singletonList("&b%members%")),
             new Item(XMaterial.GREEN_STAINED_GLASS_PANE, 15, 1, "&b&lVisitor", Collections.emptyList()));
 
-    public SingleItemGUI biomeGUI = new SingleItemGUI(45, "&7Island Biomes", background1, new Item(XMaterial.GRASS_BLOCK, 1, "&b&l%biome%", Collections.singletonList("&7Click to change your island biome!")));
+    public SingleItemGUI biomeGUI = new SingleItemGUI(45, "&7Island Biomes", emptyBackground, new Item(XMaterial.GRASS_BLOCK, 1, "&b&l%biome%", Collections.singletonList("&7Click to change your island biome!")));
 
-    public NoItemGUI islandReward = new NoItemGUI(45, "&7Island Rewards", background1);
+    public NoItemGUI islandReward = new NoItemGUI(45, "&7Island Rewards", emptyBackground);
 
     public Item nextPage = new Item(XMaterial.LIME_STAINED_GLASS_PANE, 1, "&a&lNext Page", Collections.emptyList());
     public Item previousPage = new Item(XMaterial.RED_STAINED_GLASS_PANE, 1, "&c&lPrevious Page", Collections.emptyList());

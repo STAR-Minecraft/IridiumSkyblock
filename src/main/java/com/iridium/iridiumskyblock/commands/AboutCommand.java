@@ -41,7 +41,6 @@ public class AboutCommand extends Command {
         sender.sendMessage(StringUtils.color("&7Оригинальный автор: &bPeaches_MLG"));
         sender.sendMessage(StringUtils.color("&7Другие разработчики: &b" + String.join(", ", contributors)));
         sender.sendMessage(StringUtils.color("&8Используется собственный форк проекта StarMC."));
-
         return true;
     }
 

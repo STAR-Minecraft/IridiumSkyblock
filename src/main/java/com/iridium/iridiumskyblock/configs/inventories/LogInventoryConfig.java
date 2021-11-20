@@ -5,7 +5,8 @@ import com.iridium.iridiumcore.Item;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class LogInventoryConfig extends NoItemGUI{
+public class LogInventoryConfig extends NoItemGUI {
+
     public Item IslandMembers;
     public Item IslandTrusts;
     public Item IslandInvites;
@@ -29,9 +30,8 @@ public class LogInventoryConfig extends NoItemGUI{
     public String UPGRADE_PURCHASE;
     public String REWARD_REDEEMED;
 
-    public LogInventoryConfig(int size, String title, Item IslandMembers, Item IslandTrusts, Item IslandInvites, Item IslandBank, Item IslandBoosters, Item IslandUpgrades, Item IslandRewards, String USER_JOINED, String USER_KICKED, String USER_LEFT, String USER_INVITED, String USER_UNINVITED, String USER_PROMOTED, String USER_DEMOTED, String USER_TRUSTED, String USER_UNTRUSTED, String BANK_DEPOSIT, String BANK_WITHDRAW, String BOOSTER_PURCHASE, String UPGRADE_PURCHASE, String REWARD_REDEEMED, Background background) {
-        this.size = size;
-        this.title = title;
+    public LogInventoryConfig(int size, String title, Background background, Item IslandMembers, Item IslandTrusts, Item IslandInvites, Item IslandBank, Item IslandBoosters, Item IslandUpgrades, Item IslandRewards, String USER_JOINED, String USER_KICKED, String USER_LEFT, String USER_INVITED, String USER_UNINVITED, String USER_PROMOTED, String USER_DEMOTED, String USER_TRUSTED, String USER_UNTRUSTED, String BANK_DEPOSIT, String BANK_WITHDRAW, String BOOSTER_PURCHASE, String UPGRADE_PURCHASE, String REWARD_REDEEMED) {
+        super(size, title, background);
         this.IslandMembers = IslandMembers;
         this.IslandTrusts = IslandTrusts;
         this.IslandInvites = IslandInvites;
@@ -53,6 +53,6 @@ public class LogInventoryConfig extends NoItemGUI{
         this.BOOSTER_PURCHASE = BOOSTER_PURCHASE;
         this.UPGRADE_PURCHASE = UPGRADE_PURCHASE;
         this.REWARD_REDEEMED = REWARD_REDEEMED;
-        this.background = background;
     }
+
 }

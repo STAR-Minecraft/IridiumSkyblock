@@ -12,6 +12,7 @@ import java.util.List;
 public class ShopCategory {
 
     public String name;
+    public String displayName;
     public Item item;
     public List<ShopItem> items;
     public int size;

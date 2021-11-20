@@ -7,12 +7,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MembersInventoryConfig extends NoItemGUI {
 
-    public Item item;
+    public Item listItem;
+    public Item visitorsItem;
+    public Item bansItem;
     public int[] displaySlots;
 
-    public MembersInventoryConfig(int size, String title, Background background, Item item, int[] displaySlots) {
+    public MembersInventoryConfig(int size, String title, Background background, Item listItem, Item visitorsItem, Item bansItem, int[] displaySlots) {
         super(size, title, background);
-        this.item = item;
+        this.listItem = listItem;
+        this.visitorsItem = visitorsItem;
+        this.bansItem = bansItem;
         this.displaySlots = displaySlots;
     }
 

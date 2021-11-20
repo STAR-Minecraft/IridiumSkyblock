@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -29,24 +29,31 @@ public class IslandTrustedGUI extends IslandGUI {
      *
      * @param island The Island this GUI belongs to
      */
-    public IslandTrustedGUI(@NotNull Island island) {
-        super(IridiumSkyblock.getInstance().getInventories().trustedGUI, null, island);
+    public IslandTrustedGUI(@NotNull Island island, Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().trustedGUI, previousInventory, island);
         this.members = new HashMap<>();
     }
 
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().trustedGUI.background);
+
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().trustedGUI.background);
 
         List<IslandTrusted> islandTrustedList = IridiumSkyblock.getInstance().getDatabaseManager().getIslandTrustedTableManager().getEntries(getIsland());
         AtomicInteger slot = new AtomicInteger(0);
+
         for (IslandTrusted islandTrusted : islandTrustedList) {
             int itemSlot = slot.getAndIncrement();
             List<Placeholder> placeholderList = new PlaceholderBuilder().applyPlayerPlaceholders(islandTrusted.getUser()).applyIslandPlaceholders(getIsland()).build();
             placeholderList.add(new Placeholder("trustee", islandTrusted.getTruster().getName()));
             inventory.setItem(itemSlot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().trustedGUI.item, placeholderList));
             members.put(itemSlot, islandTrusted.getUser());
+        }
+
+        if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 

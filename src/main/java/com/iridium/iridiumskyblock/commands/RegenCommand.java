@@ -7,14 +7,11 @@ import com.iridium.iridiumskyblock.configs.Schematics;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.User;
 import com.iridium.iridiumskyblock.gui.IslandRegenGUI;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.time.Duration;
+import java.util.*;
 
 /**
  * Command which resets the Island of a user.
@@ -52,7 +49,7 @@ public class RegenCommand extends Command {
                 return false;
             }
 
-            player.openInventory(new IslandRegenGUI(player, getCooldownProvider()).getInventory());
+            player.openInventory(new IslandRegenGUI(player, player.getOpenInventory().getTopInventory(), getCooldownProvider()).getInventory());
             return false;
         }
 

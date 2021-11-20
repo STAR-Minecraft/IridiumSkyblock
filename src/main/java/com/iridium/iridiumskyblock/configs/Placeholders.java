@@ -1,6 +1,10 @@
 package com.iridium.iridiumskyblock.configs;
 
+import com.google.common.collect.ImmutableMap;
 import com.iridium.iridiumcore.dependencies.fasterxml.annotation.JsonIgnoreProperties;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Placeholders {
@@ -40,9 +44,19 @@ public class Placeholders {
     public String islandBoosterRemainingMinutes = "0";
     public String islandBoosterRemainingSeconds = "0";
 
+    // Island Shop Balance Placeholders
+    public Map<String, String> islandShopBalance = ImmutableMap.<String, String>builder()
+            .put("crystals", "0")
+            .put("vault", "0")
+            .build();
+
     // Other Placeholders
     public String unknownPlayer = "N/A";
     public String crystalCost = "0";
     public String vaultCost = "0";
+
+    public String getIslandShopBalanceStub(@NotNull String currency) {
+        return islandShopBalance != null ? islandShopBalance.getOrDefault(currency, "0") : "0";
+    }
     
 }

@@ -17,13 +17,16 @@ import com.iridium.iridiumskyblock.shop.ShopManager;
 import com.iridium.iridiumskyblock.support.RoseStackerSupport;
 import com.iridium.iridiumskyblock.support.StackerSupport;
 import com.iridium.iridiumskyblock.support.WildStackerSupport;
+import com.iridium.iridiumskyblock.task.ShopBalancesResetTask;
 import com.iridium.iridiumskyblock.utils.PlayerUtils;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -86,8 +89,9 @@ public class IridiumSkyblock extends IridiumCore {
     private Map<String, Booster> boosterList;
 
     private Economy economy;
-
     private StackerSupport stackerSupport;
+
+    private ShopBalancesResetTask shopBalancesResetTask;
 
     /**
      * The default constructor.
@@ -212,9 +216,28 @@ public class IridiumSkyblock extends IridiumCore {
             registerMultiverse(islandManager.getEndWorld());
         }, 1);
 
+        // Reset islands shop balances
+        this.shopBalancesResetTask = new ShopBalancesResetTask(this);
+        this.shopBalancesResetTask.start();
+
         resetIslandMissions();
 
         getLogger().info("IridiumSkyblock fork by StarMC enabled!");
+    }
+
+    @Override
+    public void onDisable() {
+        // Close all player GUIs
+        // (Runtime plugin reload compatibility)
+        getServer().getOnlinePlayers().stream()
+                .map(Player::getOpenInventory)
+                .filter(view -> view.getTopInventory() != null)
+                .filter(view -> view.getTopInventory().getHolder() instanceof GUI)
+                .forEach(InventoryView::close);
+
+        // Shutdown the shop balances reset task
+        if(shopBalancesResetTask != null)
+            shopBalancesResetTask.stop();
     }
 
     private void registerPlaceholderSupport() {
@@ -441,6 +464,9 @@ public class IridiumSkyblock extends IridiumCore {
             upgradesList.put("generator", upgrades.oresUpgrade);
             BlockFormListener.generateOrePossibilities();
         }
+        if (upgrades.shopBalanceLimitUpgrade.enabled) {
+            upgradesList.put(("shop-balance-limit"), upgrades.shopBalanceLimitUpgrade);
+        }
 
         this.boosterList = new HashMap<>();
         if (boosters.experienceBooster.enabled)
@@ -522,14 +548,14 @@ public class IridiumSkyblock extends IridiumCore {
 
     private void initializeSettingsList() {
         this.settingsList = new HashMap<>();
-        this.settingsList.put(SettingType.MOB_SPAWN.getSettingName(), islandSettings.mobSpawn);
-        this.settingsList.put(SettingType.LEAF_DECAY.getSettingName(), islandSettings.leafDecay);
-        this.settingsList.put(SettingType.WEATHER.getSettingName(), islandSettings.weather);
-        this.settingsList.put(SettingType.TIME.getSettingName(), islandSettings.time);
-        this.settingsList.put(SettingType.ENDERMAN_GRIEF.getSettingName(), islandSettings.endermanGrief);
-        this.settingsList.put(SettingType.LIQUID_FLOW.getSettingName(), islandSettings.liquidFlow);
-        this.settingsList.put(SettingType.TNT_DAMAGE.getSettingName(), islandSettings.tntDamage);
-        this.settingsList.put(SettingType.FIRE_SPREAD.getSettingName(), islandSettings.fireSpread);
+        this.settingsList.put(SettingType.MOB_SPAWN.getSettingName(), islandSettings.settings.mobSpawn);
+        this.settingsList.put(SettingType.LEAF_DECAY.getSettingName(), islandSettings.settings.leafDecay);
+        this.settingsList.put(SettingType.WEATHER.getSettingName(), islandSettings.settings.weather);
+        this.settingsList.put(SettingType.TIME.getSettingName(), islandSettings.settings.time);
+        this.settingsList.put(SettingType.ENDERMAN_GRIEF.getSettingName(), islandSettings.settings.endermanGrief);
+        this.settingsList.put(SettingType.LIQUID_FLOW.getSettingName(), islandSettings.settings.liquidFlow);
+        this.settingsList.put(SettingType.TNT_DAMAGE.getSettingName(), islandSettings.settings.tntDamage);
+        this.settingsList.put(SettingType.FIRE_SPREAD.getSettingName(), islandSettings.settings.fireSpread);
     }
 
     private void saveSchematics() {

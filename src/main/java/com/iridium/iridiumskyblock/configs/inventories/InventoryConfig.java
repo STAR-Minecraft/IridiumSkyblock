@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 @NoArgsConstructor
-public class InventoryConfig extends NoItemGUI{
+public class InventoryConfig extends NoItemGUI {
     /**
      * A HashMap of the items in the GUI with the string representing the command to be executed
      */

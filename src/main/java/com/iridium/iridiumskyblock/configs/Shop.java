@@ -3,19 +3,27 @@ package com.iridium.iridiumskyblock.configs;
 import com.google.common.collect.ImmutableMap;
 import com.iridium.iridiumcore.Background;
 import com.iridium.iridiumcore.Item;
+import com.iridium.iridiumcore.dependencies.fasterxml.annotation.JsonIgnore;
 import com.iridium.iridiumcore.dependencies.fasterxml.annotation.JsonIgnoreProperties;
 import com.iridium.iridiumcore.dependencies.xseries.XMaterial;
 import com.iridium.iridiumcore.dependencies.xseries.XSound;
+import com.iridium.iridiumcore.utils.Placeholder;
+import com.iridium.iridiumskyblock.IridiumSkyblock;
+import com.iridium.iridiumskyblock.database.Island;
+import com.iridium.iridiumskyblock.database.IslandUpgrade;
+import com.iridium.iridiumskyblock.database.ShopBalance;
+import com.iridium.iridiumskyblock.exceptions.ShopBalanceInsufficientFundsException;
+import com.iridium.iridiumskyblock.exceptions.ShopBalanceLimitExceededException;
 import com.iridium.iridiumskyblock.shop.ShopItem;
 import com.iridium.iridiumskyblock.shop.ShopItem.BuyCost;
 import com.iridium.iridiumskyblock.shop.ShopItem.SellReward;
+import com.iridium.iridiumskyblock.upgrades.ShopBalanceLimitUpgrade;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The shop configuration used by IridiumSkyblock (shop.yml).
@@ -25,12 +33,12 @@ import java.util.Map;
 public class Shop {
 
     public Map<String, ShopCategoryConfig> categories = ImmutableMap.<String, ShopCategoryConfig>builder()
-            .put("Blocks", new ShopCategoryConfig(new Item(XMaterial.GRASS_BLOCK, 12, 1, "&9&lBlocks", Collections.emptyList()), 6))
-            .put("Food", new ShopCategoryConfig(new Item(XMaterial.COOKED_CHICKEN, 13, 1, "&9&lFood", Collections.emptyList()), 4))
-            .put("Ores", new ShopCategoryConfig(new Item(XMaterial.GOLD_INGOT, 14, 1, "&9&lOres", Collections.emptyList()), 4))
-            .put("Farming", new ShopCategoryConfig(new Item(XMaterial.WHEAT, 21, 1, "&9&lFarming", Collections.emptyList()), 5))
-            .put("Mob Drops", new ShopCategoryConfig(new Item(XMaterial.SPIDER_EYE, 22, 1, "&9&lMob Drops", Collections.emptyList()), 5))
-            .put("Miscellaneous", new ShopCategoryConfig(new Item(XMaterial.SADDLE, 23, 1, "&9&lMiscellaneous", Collections.emptyList()), 4))
+            .put("Blocks", new ShopCategoryConfig(new Item(XMaterial.GRASS_BLOCK, 12, 1, "&9&lBlocks", Collections.emptyList()), "Blocks", 6))
+            .put("Food", new ShopCategoryConfig(new Item(XMaterial.COOKED_CHICKEN, 13, 1, "&9&lFood", Collections.emptyList()), "Food", 4))
+            .put("Ores", new ShopCategoryConfig(new Item(XMaterial.GOLD_INGOT, 14, 1, "&9&lOres", Collections.emptyList()), "Ores", 4))
+            .put("Farming", new ShopCategoryConfig(new Item(XMaterial.WHEAT, 21, 1, "&9&lFarming", Collections.emptyList()), "Farming", 5))
+            .put("Mob Drops", new ShopCategoryConfig(new Item(XMaterial.SPIDER_EYE, 22, 1, "&9&lMob Drops", Collections.emptyList()), "Mob Drops", 5))
+            .put("Miscellaneous", new ShopCategoryConfig(new Item(XMaterial.SADDLE, 23, 1, "&9&lMiscellaneous", Collections.emptyList()), "Miscellaneous", 4))
             .build();
 
     public Map<String, List<ShopItem>> items = ImmutableMap.<String, List<ShopItem>>builder()
@@ -795,23 +803,38 @@ public class Shop {
 
     public String overviewTitle = "&7Island Shop";
     public String categoryTitle = "&7Island Shop | %category_name%";
-    public String buyPriceLore = "&aBuy Price: $%buy_price_vault%, %buy_price_crystals% Crystals";
-    public String sellRewardLore = "&cSelling Reward: $%sell_reward_vault%, %sell_reward_crystals% Crystals";
-    public String notPurchasableLore = "&cThis item cannot be purchased!";
-    public String notSellableLore = "&cThis item cannot be sold!";
+    public List<String> buyPriceLore = Collections.singletonList("&aBuy Price: $%buy_price_vault%, %buy_price_crystals% Crystals");
+    public List<String> sellRewardLore = Collections.singletonList("&cSelling Reward: $%sell_reward_vault%, %sell_reward_crystals% Crystals");
+    public List<String> notPurchasableLore = Collections.singletonList("&cThis item cannot be purchased!");
+    public List<String> notSellableLore = Collections.singletonList("&cThis item cannot be sold!");
+    public List<String> shopItemLore = Arrays.asList(" ", "&b&l[!] &bLeft-Click to Purchase %amount%, Shift for 64", "&b&l[!] &bRight Click to Sell %amount%, Shift for 64");
+
+    public ShopBalanceConfig shopBalanceConfig = new ShopBalanceConfig();
 
     public boolean abbreviatePrices = true;
+    public boolean abbreviateShopBalances = true;
     public boolean dropItemWhenFull = false;
+    public boolean addFooterLineInGUI = true;
 
     public int overviewSize = 4 * 9;
 
     public XSound failSound = XSound.BLOCK_ANVIL_LAND;
     public XSound successSound = XSound.ENTITY_PLAYER_LEVELUP;
 
+    public XSound shopResetFailSound = XSound.BLOCK_ANVIL_LAND;
+    public XSound shopResetSuccessSound = XSound.ENTITY_PLAYER_LEVELUP;
+
     public Background overviewBackground = new Background(ImmutableMap.<Integer, Item>builder().build());
     public Background categoryBackground = new Background(ImmutableMap.<Integer, Item>builder().build());
 
-    public List<String> shopItemLore = Arrays.asList(" ", "&b&l[!] &bLeft-Click to Purchase %amount%, Shift for 64", "&b&l[!] &bRight Click to Sell %amount%, Shift for 64");
+    public Item resetButton = new Item(XMaterial.HOPPER, 35, 1, "&b&lReset Shop Balance", Arrays.asList(
+            "&7Want to reset your shop balance to default?",
+            "&7You can do that with this button.",
+            "",
+            "&7Reset Cost: &b%crystals% Crystals and $%vault%",
+            "",
+            "&b&l[!] &bLeft Click to Reset the Shop Balance"
+    ));
 
     /**
      * Represents configurable options of a {@link com.iridium.iridiumskyblock.shop.ShopCategory}.
@@ -820,7 +843,115 @@ public class Shop {
     @AllArgsConstructor
     public static class ShopCategoryConfig {
         public Item item;
+        public String displayName;
         public int inventoryRows;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ShopBalanceConfig {
+        private static final double DEFAULT_LIMIT = -1D;
+
+        public boolean resetBalancesEveryDay = true;
+
+        public Map<String, Double> resetPrice = ImmutableMap.<String, Double>builder()
+                .put("crystals", 100.0)
+                .put("vault", 10000.0)
+                .build();
+
+        @JsonIgnore
+        public double getResetCost(@NotNull String currency) {
+            return Math.max(0D, resetPrice.getOrDefault(currency, 0D));
+        }
+
+        @JsonIgnore
+        public double getBalanceLimit(@NotNull Island island, @NotNull String currency) {
+            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shop-balance-limit");
+            int upgradeLevel = islandUpgrade.getLevel();
+
+            ShopBalanceLimitUpgrade upgrade = IridiumSkyblock.getInstance().getUpgrades().shopBalanceLimitUpgrade.upgrades.get(upgradeLevel);
+            if (upgrade == null)
+                return 0D;
+
+            double limit;
+            switch (currency.toLowerCase()) {
+                case "crystals":
+                    limit = upgrade.crystalsLimit;
+                    break;
+                case "vault":
+                    limit = upgrade.vaultLimit;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected currency with ID: " + currency + "!");
+            }
+
+            return limit >= 0D ? limit : DEFAULT_LIMIT;
+        }
+
+        public boolean has(@NotNull ShopBalance shopBalance, double crystals, double vault) {
+            return shopBalance.has("crystals", crystals) && shopBalance.has("vault", vault);
+        }
+
+        public boolean depositAmount(@NotNull ShopBalance shopBalance, double crystals, double vault) {
+            try {
+                shopBalance.add("crystals", crystals);
+                shopBalance.add("vault", vault);
+                return true;
+            } catch (ShopBalanceLimitExceededException ignored) {
+                return false;
+            }
+        }
+
+        public boolean withdrawAmount(@NotNull ShopBalance shopBalance, double crystals, double vault) {
+            try {
+                shopBalance.take("crystals", crystals);
+                shopBalance.take("vault", vault);
+                return true;
+            } catch (ShopBalanceInsufficientFundsException ignored) {
+                return false;
+            }
+        }
+
+        public void fillWithDefaultAmounts(@NotNull Island island, @NotNull ShopBalance shopBalance) {
+            shopBalance.clear();
+
+            ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
+            shopBalance.set("crystals", upgrade.crystalsLimit);
+            shopBalance.set("vault", upgrade.vaultLimit);
+        }
+
+        @JsonIgnore
+        public boolean isDefaultBalance(@NotNull Island island, @NotNull ShopBalance shopBalance) {
+            ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
+            double crystalsBalance = shopBalance.getBalanceOf("crystals").orElse(0D);
+            double vaultBalance = shopBalance.getBalanceOf("vault").orElse(0D);
+            return crystalsBalance == upgrade.crystalsLimit && vaultBalance == upgrade.vaultLimit;
+        }
+
+        @JsonIgnore
+        public @NotNull List<Placeholder> getResetPricePlaceholders() {
+            List<Placeholder> placeholders = new ArrayList<>();
+            if(resetPrice != null && !resetPrice.isEmpty()) {
+                resetPrice.entrySet().stream()
+                        .map(this::makePlaceholderInstance)
+                        .forEach(placeholders::add);
+            }
+            return placeholders;
+        }
+
+        @JsonIgnore
+        private @NotNull ShopBalanceLimitUpgrade getUpgrade(@NotNull Island island) {
+            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shop-balance-limit");
+            int upgradeLevel = islandUpgrade.getLevel();
+            return IridiumSkyblock.getInstance().getUpgrades().shopBalanceLimitUpgrade.upgrades.get(upgradeLevel);
+        }
+
+        private @NotNull Placeholder makePlaceholderInstance(@NotNull Map.Entry<String, ?> mapEntry) {
+            return makePlaceholderInstance(mapEntry.getKey(), mapEntry.getValue());
+        }
+
+        private @NotNull Placeholder makePlaceholderInstance(@NotNull String key, @Nullable Object value) {
+            return new Placeholder(key, String.valueOf(value));
+        }
 
     }
 

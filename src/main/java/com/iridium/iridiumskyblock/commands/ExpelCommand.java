@@ -50,7 +50,7 @@ public class ExpelCommand extends Command {
         }
 
         if (args.length == 1) {
-            player.openInventory(new IslandVisitorsGUI(1, island.get()).getInventory());
+            player.openInventory(new IslandVisitorsGUI(1, island.get(), player.getOpenInventory().getTopInventory()).getInventory());
             return true;
         }
 

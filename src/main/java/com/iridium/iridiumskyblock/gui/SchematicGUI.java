@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.configs.Schematics;
@@ -22,11 +22,15 @@ public abstract class SchematicGUI extends GUI {
         super(IridiumSkyblock.getInstance().getInventories().islandSchematicGUI);
     }
 
+    public SchematicGUI(Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().islandSchematicGUI, previousInventory);
+    }
+
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
 
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().islandSchematicGUI.background);
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().islandSchematicGUI.background);
 
         for (Map.Entry<String, Schematics.SchematicConfig> entry : IridiumSkyblock.getInstance().getSchematics().schematics.entrySet()) {
             inventory.setItem(entry.getValue().item.slot, ItemStackUtils.makeItem(entry.getValue().item));
@@ -34,7 +38,8 @@ public abstract class SchematicGUI extends GUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 

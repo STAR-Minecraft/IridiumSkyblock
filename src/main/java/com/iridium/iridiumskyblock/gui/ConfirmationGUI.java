@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.managers.CooldownProvider;
@@ -33,10 +33,14 @@ public class ConfirmationGUI extends GUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, getNoItemGUI().background);
 
-        inventory.setItem(IridiumSkyblock.getInstance().getInventories().confirmationGUI.no.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().confirmationGUI.no));
-        inventory.setItem(IridiumSkyblock.getInstance().getInventories().confirmationGUI.yes.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().confirmationGUI.yes));
+        preFillBackground(inventory, getNoItemGUI().background);
+
+        Item noItem = IridiumSkyblock.getInstance().getInventories().confirmationGUI.no;
+        inventory.setItem(noItem.slot, ItemStackUtils.makeItem(noItem));
+
+        Item yesItem = IridiumSkyblock.getInstance().getInventories().confirmationGUI.yes;
+        inventory.setItem(yesItem.slot, ItemStackUtils.makeItem(yesItem));
     }
 
     /**

@@ -10,6 +10,7 @@ import com.iridium.iridiumskyblock.managers.CooldownProvider;
 import com.iridium.iridiumskyblock.utils.PlayerUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -28,7 +29,8 @@ public class IslandRegenGUI extends SchematicGUI {
      * @param player           The player who wants to regen his Island
      * @param cooldownProvider The provider for cooldowns that should be started on success
      */
-    public IslandRegenGUI(@NotNull Player player, @NotNull CooldownProvider<CommandSender> cooldownProvider) {
+    public IslandRegenGUI(@NotNull Player player, Inventory previousInventory, @NotNull CooldownProvider<CommandSender> cooldownProvider) {
+        super(previousInventory);
         this.player = player;
         this.cooldownProvider = cooldownProvider;
     }

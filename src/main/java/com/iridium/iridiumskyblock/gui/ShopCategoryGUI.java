@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -44,7 +44,7 @@ public class ShopCategoryGUI extends GUI {
     @Override
     public Inventory getInventory() {
         Inventory inventory = Bukkit.createInventory(this, category.size, StringUtils.color(IridiumSkyblock.getInstance().getShop().categoryTitle
-                .replace("%category_name%", category.name)
+                .replace("%category_name%", category.displayName)
         ));
 
         Bukkit.getScheduler().runTaskAsynchronously(IridiumSkyblock.getInstance(), () -> addContent(inventory));
@@ -59,7 +59,7 @@ public class ShopCategoryGUI extends GUI {
     public void addContent(Inventory inventory) {
         inventory.clear();
 
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getShop().categoryBackground);
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getShop().categoryBackground);
 
         for (ShopItem item : category.items) {
             ItemStack itemStack = item.type.parseItem();
@@ -78,8 +78,14 @@ public class ShopCategoryGUI extends GUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
+    }
+
+    @Override
+    protected boolean hasFooterLine() {
+        return IridiumSkyblock.getInstance().getShop().addFooterLineInGUI;
     }
 
     /**
@@ -119,34 +125,31 @@ public class ShopCategoryGUI extends GUI {
 
     private void addShopLore(List<String> lore, ShopItem item) {
         if (item.isPurchasable()) {
-            lore.add(
-                    StringUtils.color(IridiumSkyblock.getInstance().getShop().buyPriceLore
-                            .replace("%amount%", String.valueOf(item.defaultAmount))
-                            .replace("%buy_price_vault%", formatPrice(item.buyCost.vault))
-                            .replace("%buy_price_crystals%", formatPrice(item.buyCost.crystals))
-                    )
-            );
+            IridiumSkyblock.getInstance().getShop().buyPriceLore.stream()
+                    .map(StringUtils::color)
+                    .map(line -> line.replace("%amount%", String.valueOf(item.defaultAmount)))
+                    .map(line -> line.replace("%buy_price_vault%", String.valueOf(item.buyCost.vault)))
+                    .map(line -> line.replace("%buy_price_crystals%", String.valueOf(item.buyCost.crystals)))
+                    .forEach(lore::add);
         } else {
-            lore.add(StringUtils.color(IridiumSkyblock.getInstance().getShop().notPurchasableLore));
+            lore.addAll(StringUtils.color(IridiumSkyblock.getInstance().getShop().notPurchasableLore));
         }
 
         if (item.isSellable()) {
-            lore.add(
-                    StringUtils.color(IridiumSkyblock.getInstance().getShop().sellRewardLore
-                            .replace("%amount%", String.valueOf(item.defaultAmount))
-                            .replace("%sell_reward_vault%", formatPrice(item.sellReward.vault))
-                            .replace("%sell_reward_crystals%", formatPrice(item.sellReward.crystals))
-                    )
-            );
+            IridiumSkyblock.getInstance().getShop().sellRewardLore.stream()
+                    .map(StringUtils::color)
+                    .map(line -> line.replace("%amount%", String.valueOf(item.defaultAmount)))
+                    .map(line -> line.replace("%sell_reward_vault%", String.valueOf(item.sellReward.vault)))
+                    .map(line -> line.replace("%sell_reward_crystals%", String.valueOf(item.sellReward.crystals)))
+                    .forEach(lore::add);
         } else {
-            lore.add(StringUtils.color(IridiumSkyblock.getInstance().getShop().notSellableLore));
+            lore.addAll(StringUtils.color(IridiumSkyblock.getInstance().getShop().notSellableLore));
         }
 
         IridiumSkyblock.getInstance().getShop().shopItemLore.stream()
                 .map(StringUtils::color)
-                .forEach(line -> lore.add(
-                        line.replace("%amount%", String.valueOf(item.defaultAmount))
-                ));
+                .map(line -> line.replace("%amount%", String.valueOf(item.defaultAmount)))
+                .forEach(lore::add);
     }
 
     private String formatPrice(double value) {

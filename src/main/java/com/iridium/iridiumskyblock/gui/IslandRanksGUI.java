@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -33,21 +33,39 @@ public class IslandRanksGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
+
         IslandRanksInventoryConfig islandRanks = IridiumSkyblock.getInstance().getInventories().islandRanksGUI;
-        InventoryUtils.fillInventory(inventory, islandRanks.background);
+
+        preFillBackground(inventory, islandRanks.background);
+
         List<User> members = IridiumSkyblock.getInstance().getIslandManager().getIslandMembers(getIsland());
+
         inventory.setItem(islandRanks.owner.slot, ItemStackUtils.makeItem(islandRanks.owner,
                 Collections.singletonList(new Placeholder("members", getIsland().getOwner().getName()))));
+
         inventory.setItem(islandRanks.coOwner.slot, ItemStackUtils.makeItem(islandRanks.coOwner,
-                Collections.singletonList(new Placeholder("members", members.stream().filter(member -> member.getIslandRank().equals(IslandRank.CO_OWNER)).map(User::getName).collect(Collectors.joining(", "))))));
+                Collections.singletonList(new Placeholder("members", members.stream()
+                        .filter(member -> member.getIslandRank().equals(IslandRank.CO_OWNER))
+                        .map(User::getName)
+                        .collect(Collectors.joining(", "))))));
+
         inventory.setItem(islandRanks.moderator.slot, ItemStackUtils.makeItem(islandRanks.moderator,
-                Collections.singletonList(new Placeholder("members", members.stream().filter(member -> member.getIslandRank().equals(IslandRank.MODERATOR)).map(User::getName).collect(Collectors.joining(", "))))));
+                Collections.singletonList(new Placeholder("members", members.stream()
+                        .filter(member -> member.getIslandRank().equals(IslandRank.MODERATOR))
+                        .map(User::getName)
+                        .collect(Collectors.joining(", "))))));
+
         inventory.setItem(islandRanks.member.slot, ItemStackUtils.makeItem(islandRanks.member,
-                Collections.singletonList(new Placeholder("members", members.stream().filter(member -> member.getIslandRank().equals(IslandRank.MEMBER)).map(User::getName).collect(Collectors.joining(", "))))));
+                Collections.singletonList(new Placeholder("members", members.stream()
+                        .filter(member -> member.getIslandRank().equals(IslandRank.MEMBER))
+                        .map(User::getName)
+                        .collect(Collectors.joining(", "))))));
+
         inventory.setItem(islandRanks.visitor.slot, ItemStackUtils.makeItem(islandRanks.visitor));
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
@@ -71,7 +89,6 @@ public class IslandRanksGUI extends IslandGUI {
             event.getWhoClicked().openInventory(new IslandPermissionsGUI(getIsland(), IslandRank.MEMBER, event.getClickedInventory(), 1).getInventory());
         else if (event.getSlot() == islandRanks.visitor.slot)
             event.getWhoClicked().openInventory(new IslandPermissionsGUI(getIsland(), IslandRank.VISITOR, event.getClickedInventory(), 1).getInventory());
-
     }
 
 }

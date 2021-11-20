@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
@@ -25,17 +25,18 @@ public class IslandTopGUI extends GUI {
     /**
      * The default constructor.
      */
-    public IslandTopGUI() {
-        super(IridiumSkyblock.getInstance().getInventories().islandTopGUI);
+    public IslandTopGUI(Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().islandTopGUI, previousInventory);
     }
 
     @Override
     public void addContent(Inventory inventory) {
         List<Island> islands = IridiumSkyblock.getInstance().getIslandManager().getIslands(IslandManager.SortType.VALUE);
+
         islandSlots.clear();
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().islandTopGUI.background);
 
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().islandTopGUI.background);
 
         for (int rank : IridiumSkyblock.getInstance().getConfiguration().islandTopSlots.keySet()) {
             int slot = IridiumSkyblock.getInstance().getConfiguration().islandTopSlots.get(rank);
@@ -49,7 +50,8 @@ public class IslandTopGUI extends GUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 

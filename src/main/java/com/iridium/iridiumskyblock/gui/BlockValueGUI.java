@@ -1,7 +1,7 @@
 package com.iridium.iridiumskyblock.gui;
 
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.dependencies.xseries.XMaterial;
-import com.iridium.iridiumcore.utils.InventoryUtils;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -40,10 +40,13 @@ public class BlockValueGUI extends GUI {
     public void addContent(Inventory inventory) {
         inventory.clear();
 
-        InventoryUtils.fillInventory(inventory, getNoItemGUI().background);
+        preFillBackground(inventory, getNoItemGUI().background);
 
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         if (guiType == BlockValueType.BLOCK) {
             IridiumSkyblock.getInstance().getBlockValues().blockValues.entrySet().stream()
@@ -66,7 +69,8 @@ public class BlockValueGUI extends GUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
@@ -86,13 +90,17 @@ public class BlockValueGUI extends GUI {
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        if (event.getSlot() == getNoItemGUI().size - 7 && page > 1) {
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == getNoItemGUI().size + previousPage.slot && page > 1) {
             page--;
             player.openInventory(getInventory());
             return;
         }
-        boolean nextPage = (guiType == BlockValueType.SPAWNER ? IridiumSkyblock.getInstance().getBlockValues().spawnerValues : IridiumSkyblock.getInstance().getBlockValues().blockValues).entrySet().stream().anyMatch(valueEntry -> valueEntry.getValue().page == page + 1);
-        if (event.getSlot() == getNoItemGUI().size - 3 && nextPage) {
+
+        boolean hasNextPage = (guiType == BlockValueType.SPAWNER ? IridiumSkyblock.getInstance().getBlockValues().spawnerValues : IridiumSkyblock.getInstance().getBlockValues().blockValues).entrySet().stream().anyMatch(valueEntry -> valueEntry.getValue().page == page + 1);
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == getNoItemGUI().size + nextPage.slot && hasNextPage) {
             page++;
             player.openInventory(getInventory());
         }

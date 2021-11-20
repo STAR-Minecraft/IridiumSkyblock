@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumcore.utils.StringUtils;
@@ -41,9 +41,14 @@ public class IslandPermissionsGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().islandPermissionsGUI.background);
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().islandPermissionsGUI.background);
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         for (Map.Entry<String, Permission> permission : IridiumSkyblock.getInstance().getPermissionList().entrySet()) {
             if (permission.getValue().getPage() != page) continue;
@@ -52,7 +57,8 @@ public class IslandPermissionsGUI extends IslandGUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
@@ -79,16 +85,18 @@ public class IslandPermissionsGUI extends IslandGUI {
             return;
         }
 
-       if (event.getSlot() == getNoItemGUI().size - 7 && page > 1) {
-           page--;
-           event.getWhoClicked().openInventory(getInventory());
-           return;
-       }
-       
-       if (event.getSlot() == getNoItemGUI().size - 3) {
-           page++;
-           event.getWhoClicked().openInventory(getInventory());
-       }
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == getNoItemGUI().size + previousPage.slot && page > 1) {
+            page--;
+            event.getWhoClicked().openInventory(getInventory());
+            return;
+        }
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == getNoItemGUI().size + nextPage.slot) {
+            page++;
+            event.getWhoClicked().openInventory(getInventory());
+        }
     }
 
 }

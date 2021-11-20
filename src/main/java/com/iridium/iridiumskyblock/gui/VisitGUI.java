@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
@@ -37,10 +37,13 @@ public class VisitGUI extends GUI {
     public void addContent(Inventory inventory) {
         inventory.clear();
 
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().visitGUI.background);
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().visitGUI.background);
 
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         int elementsPerPage = inventory.getSize() - 9;
         List<Island> islands = IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().getEntries().stream()
@@ -48,6 +51,7 @@ public class VisitGUI extends GUI {
                 .skip((long) (page - 1) * elementsPerPage)
                 .limit(elementsPerPage)
                 .collect(Collectors.toList());
+
         AtomicInteger slot = new AtomicInteger(0);
         for (Island island : islands) {
             inventory.setItem(slot.getAndIncrement(), ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().visitGUI.item, new PlaceholderBuilder().applyIslandPlaceholders(island).build()));
@@ -65,15 +69,20 @@ public class VisitGUI extends GUI {
         List<Island> islands = IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().getEntries().stream()
                 .filter(Island::isVisitable)
                 .collect(Collectors.toList());
-        if (event.getSlot() == getInventory().getSize() - 7) {
-            if (page > 1) {
-                event.getWhoClicked().openInventory(new VisitGUI(page - 1, viewer).getInventory());
-            }
-        } else if (event.getSlot() == getInventory().getSize() - 3) {
-            if ((event.getInventory().getSize() - 9) * page < islands.size()) {
-                event.getWhoClicked().openInventory(new VisitGUI(page + 1, viewer).getInventory());
-            }
-        } else if (event.getSlot() + 1 <= islands.size()) {
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == getInventory().getSize() + previousPage.slot && page > 1) {
+            event.getWhoClicked().openInventory(new VisitGUI(page - 1, viewer).getInventory());
+            return;
+        }
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == getInventory().getSize() + nextPage.slot && (event.getInventory().getSize() - 9) * page < islands.size()) {
+            event.getWhoClicked().openInventory(new VisitGUI(page + 1, viewer).getInventory());
+            return;
+        }
+
+        if (event.getSlot() + 1 <= islands.size()) {
             int index = ((event.getInventory().getSize() - 9) * (page - 1)) + event.getSlot();
             if (islands.size() > index) {
                 Island island = islands.get(index);

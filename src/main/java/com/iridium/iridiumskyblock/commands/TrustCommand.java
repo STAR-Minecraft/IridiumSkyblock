@@ -53,7 +53,7 @@ public class TrustCommand extends Command {
         }
 
         if (args.length != 2) {
-            player.openInventory(new IslandTrustedGUI(island.get()).getInventory());
+            player.openInventory(new IslandTrustedGUI(island.get(), player.getOpenInventory().getTopInventory()).getInventory());
             return true;
         }
 

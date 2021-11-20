@@ -1,12 +1,13 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
 import com.iridium.iridiumskyblock.configs.inventories.MembersInventoryConfig;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.User;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +29,8 @@ public class IslandMembersGUI extends IslandGUI {
      *
      * @param island The Island this GUI belongs to
      */
-    public IslandMembersGUI(@NotNull Island island) {
-        super(IridiumSkyblock.getInstance().getInventories().membersGUI, null, island);
+    public IslandMembersGUI(@NotNull Island island, Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().membersGUI, previousInventory, island);
         this.members = new HashMap<>();
     }
 
@@ -37,10 +38,15 @@ public class IslandMembersGUI extends IslandGUI {
     public void addContent(Inventory inventory) {
         inventory.clear();
         members.clear();
+
         MembersInventoryConfig membersGUI = IridiumSkyblock.getInstance().getInventories().membersGUI;
-        InventoryUtils.fillInventory(inventory, membersGUI.background);
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        preFillBackground(inventory, membersGUI.background);
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         int pageSize = membersGUI.displaySlots != null ? membersGUI.displaySlots.length : 0;
         if(pageSize == 0)
@@ -58,8 +64,23 @@ public class IslandMembersGUI extends IslandGUI {
             if (itemSlot == -1)
                 break;
 
-            inventory.setItem(itemSlot, ItemStackUtils.makeItem(membersGUI.item, new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build()));
+            inventory.setItem(itemSlot, ItemStackUtils.makeItem(membersGUI.listItem, new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build()));
             members.put(itemSlot, user);
+        }
+
+        Item visitorsItem = membersGUI.visitorsItem;
+        if (visitorsItem != null) {
+            inventory.setItem(visitorsItem.slot, ItemStackUtils.makeItem(visitorsItem));
+        }
+
+        Item bansItem = membersGUI.bansItem;
+        if (bansItem != null) {
+            inventory.setItem(bansItem.slot, ItemStackUtils.makeItem(bansItem));
+        }
+
+        if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
@@ -87,15 +108,32 @@ public class IslandMembersGUI extends IslandGUI {
         }
 
         MembersInventoryConfig membersGUI = IridiumSkyblock.getInstance().getInventories().membersGUI;
-        if (event.getSlot() == membersGUI.size - 7 && page > 1) {
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == membersGUI.size + previousPage.slot && page > 1) {
             page--;
             event.getWhoClicked().openInventory(getInventory());
             return;
         }
 
-        if (event.getSlot() == membersGUI.size - 3) {
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == membersGUI.size + nextPage.slot) {
             page++;
             event.getWhoClicked().openInventory(getInventory());
+            return;
+        }
+
+        Player player = (Player) event.getWhoClicked();
+
+        Item visitorsItem = membersGUI.visitorsItem;
+        if (visitorsItem != null && event.getSlot() == visitorsItem.slot) {
+            event.getWhoClicked().openInventory(new IslandVisitorsGUI(1, getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
+            return;
+        }
+
+        Item bansItem = membersGUI.bansItem;
+        if (bansItem != null && event.getSlot() == bansItem.slot) {
+            event.getWhoClicked().openInventory(new IslandBansGUI(1, getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
         }
     }
 

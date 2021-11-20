@@ -66,6 +66,12 @@ public final class Island {
     @DatabaseField(columnName = "color", canBeNull = false)
     private @NotNull Color color;
 
+    @DatabaseField(columnName = "shop_balance")
+    private ShopBalance shopBalance;
+
+    @DatabaseField(columnName = "shop_reset_at")
+    private long shopResetAt;
+
     // Cache resets every 0.5 seconds
     private Cache<Double> valueCache = new Cache<>(500);
 
@@ -159,7 +165,7 @@ public final class Island {
      *
      * @return A list of all Users belonging to the island
      */
-    public List<User> getMembers() {
+    public @NotNull List<User> getMembers() {
         return IridiumSkyblock.getInstance().getIslandManager().getIslandMembers(this);
     }
 
@@ -207,8 +213,28 @@ public final class Island {
      *
      * @return A LocalDateTime of this island was created
      */
-    public LocalDateTime getCreateTime() {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(getTime()), ZoneId.systemDefault());
+    public @NotNull LocalDateTime getCreateTime() {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+    }
+
+    // patched by StarMC: add shop balance reset timestamp
+    public @NotNull LocalDateTime getShopResetAt() {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(shopResetAt), ZoneId.systemDefault());
+    }
+
+    public @NotNull ShopBalance getShopBalance() {
+        if(shopBalance == null) {
+            this.shopBalance = new ShopBalance(this);
+            resetShopBalance();
+        }
+
+        shopBalance.setIsland(this);
+        return shopBalance;
+    }
+
+    public void resetShopBalance() {
+        if(shopBalance != null)
+            IridiumSkyblock.getInstance().getShop().shopBalanceConfig.fillWithDefaultAmounts(this, shopBalance);
     }
 
     /**

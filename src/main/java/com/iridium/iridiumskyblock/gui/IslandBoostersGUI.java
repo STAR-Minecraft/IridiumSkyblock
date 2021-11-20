@@ -1,7 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
 import com.iridium.iridiumcore.Item;
-import com.iridium.iridiumcore.utils.InventoryUtils;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.Booster;
@@ -34,7 +33,8 @@ public class IslandBoostersGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, getNoItemGUI().background);
+
+        preFillBackground(inventory, getNoItemGUI().background);
 
         for (Map.Entry<String, Booster> entry : IridiumSkyblock.getInstance().getBoosterList().entrySet()) {
             Item item = entry.getValue().item;
@@ -50,7 +50,8 @@ public class IslandBoostersGUI extends IslandGUI {
         }
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 

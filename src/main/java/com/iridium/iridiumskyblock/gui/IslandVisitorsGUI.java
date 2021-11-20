@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -29,8 +29,8 @@ public class IslandVisitorsGUI extends IslandGUI {
      *
      * @param island The Island this GUI belongs to
      */
-    public IslandVisitorsGUI(int page, @NotNull Island island) {
-        super(IridiumSkyblock.getInstance().getInventories().visitorsGUI, null, island);
+    public IslandVisitorsGUI(int page, @NotNull Island island, Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().visitorsGUI, previousInventory, island);
         this.page = page;
         this.visitors = new ArrayList<>();
     }
@@ -38,10 +38,14 @@ public class IslandVisitorsGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, getNoItemGUI().background);
 
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        preFillBackground(inventory, getNoItemGUI().background);
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         final long elementsPerPage = inventory.getSize() - 9;
         AtomicInteger slot = new AtomicInteger(0);
@@ -55,6 +59,11 @@ public class IslandVisitorsGUI extends IslandGUI {
                     List<Placeholder> placeholderList = new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build();
                     inventory.setItem(slot.getAndIncrement(), ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().visitorsGUI.item, placeholderList));
                 });
+
+        if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
+        }
     }
 
     /**
@@ -67,15 +76,19 @@ public class IslandVisitorsGUI extends IslandGUI {
     public void onInventoryClick(InventoryClickEvent event) {
         final int size = IridiumSkyblock.getInstance().getInventories().bansGUI.size;
         Player player = (Player) event.getWhoClicked();
-        if (event.getSlot() == size - 7 && page > 1) {
-            player.openInventory(new IslandVisitorsGUI(page - 1, getIsland()).getInventory());
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == size + previousPage.slot && page > 1) {
+            player.openInventory(new IslandVisitorsGUI(page - 1, getIsland(), event.getView().getTopInventory()).getInventory());
             return;
         }
 
-        if (event.getSlot() == size - 3 && (size - 9) * page < visitors.size()) {
-            player.openInventory(new IslandVisitorsGUI(page + 1, getIsland()).getInventory());
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == size + nextPage.slot && (size - 9) * page < visitors.size()) {
+            player.openInventory(new IslandVisitorsGUI(page + 1, getIsland(), event.getView().getTopInventory()).getInventory());
             return;
         }
+
         if (visitors.size() > event.getSlot()) {
             User visitor = visitors.get(event.getSlot());
             if (event.isLeftClick()) {

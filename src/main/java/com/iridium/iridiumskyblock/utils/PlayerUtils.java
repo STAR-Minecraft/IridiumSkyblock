@@ -39,13 +39,15 @@ public class PlayerUtils {
         }
 
         IslandBank islandCrystals = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().crystalsBankItem);
-        IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
-        Economy economy = IridiumSkyblock.getInstance().getEconomy();
+        if(islandCrystals.isEnabled()) {
+            islandCrystals.setNumber(islandCrystals.getNumber() - crystals);
+        }
 
-        islandCrystals.setNumber(islandCrystals.getNumber() - crystals);
-        if (islandMoney.getNumber() >= money) {
+        IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
+        if(islandMoney.hasOrDisabled(money)) {
             islandMoney.setNumber(islandMoney.getNumber() - money);
         } else {
+            Economy economy = IridiumSkyblock.getInstance().getEconomy();
             economy.withdrawPlayer(player, money);
         }
 
@@ -66,7 +68,7 @@ public class PlayerUtils {
         IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
         Economy economy = IridiumSkyblock.getInstance().getEconomy();
 
-        return islandCrystals.getNumber() >= crystals && (islandMoney.getNumber() >= money || (economy != null && economy.getBalance(player) >= money));
+        return islandCrystals.hasOrDisabled(crystals) && (islandMoney.hasOrDisabled(money) || (economy != null && economy.has(player, money)));
     }
 
     /**

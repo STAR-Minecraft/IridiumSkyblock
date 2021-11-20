@@ -9,9 +9,9 @@ import org.bukkit.WeatherType;
 @Getter
 public enum SettingType {
 
-    MOB_SPAWN("mob_spawn", IridiumSkyblock.getInstance().getIslandSettings().mobSpawn.getDefaultValue()),
-    LEAF_DECAY("leaf_decay", IridiumSkyblock.getInstance().getIslandSettings().leafDecay.getDefaultValue()),
-    WEATHER("weather", IridiumSkyblock.getInstance().getIslandSettings().weather.getDefaultValue(), IslandWeatherType::getNext, IslandWeatherType::getPrevious, (island, newValue) -> {
+    MOB_SPAWN("mob_spawn", IridiumSkyblock.getInstance().getIslandSettings().settings.mobSpawn.getDefaultValue()),
+    LEAF_DECAY("leaf_decay", IridiumSkyblock.getInstance().getIslandSettings().settings.leafDecay.getDefaultValue()),
+    WEATHER("weather", IridiumSkyblock.getInstance().getIslandSettings().settings.weather.getDefaultValue(), IslandWeatherType::getNext, IslandWeatherType::getPrevious, (island, newValue) -> {
         IridiumSkyblock.getInstance().getIslandManager().getPlayersOnIsland(island).stream().map(User::getPlayer).forEach(player -> {
             IslandWeatherType islandWeatherType = IslandWeatherType.valueOf(newValue);
             if (islandWeatherType == IslandWeatherType.DEFAULT) {
@@ -21,16 +21,16 @@ public enum SettingType {
             }
         });
     }),
-    TIME("time", IridiumSkyblock.getInstance().getIslandSettings().time.getDefaultValue(), IslandTime::getNext, IslandTime::getPrevious, (island, newValue) -> {
+    TIME("time", IridiumSkyblock.getInstance().getIslandSettings().settings.time.getDefaultValue(), IslandTime::getNext, IslandTime::getPrevious, (island, newValue) -> {
         IridiumSkyblock.getInstance().getIslandManager().getPlayersOnIsland(island).stream().map(User::getPlayer).forEach(player -> {
             IslandTime islandTime = IslandTime.valueOf(newValue);
             player.setPlayerTime(islandTime.getTime(), islandTime.isRelative());
         });
     }),
-    ENDERMAN_GRIEF("enderman_grief", IridiumSkyblock.getInstance().getIslandSettings().endermanGrief.getDefaultValue()),
-    LIQUID_FLOW("liquid_flow", IridiumSkyblock.getInstance().getIslandSettings().liquidFlow.getDefaultValue()),
-    TNT_DAMAGE("tnt_damage", IridiumSkyblock.getInstance().getIslandSettings().tntDamage.getDefaultValue()),
-    FIRE_SPREAD("fire_spread", IridiumSkyblock.getInstance().getIslandSettings().fireSpread.getDefaultValue());
+    ENDERMAN_GRIEF("enderman_grief", IridiumSkyblock.getInstance().getIslandSettings().settings.endermanGrief.getDefaultValue()),
+    LIQUID_FLOW("liquid_flow", IridiumSkyblock.getInstance().getIslandSettings().settings.liquidFlow.getDefaultValue()),
+    TNT_DAMAGE("tnt_damage", IridiumSkyblock.getInstance().getIslandSettings().settings.tntDamage.getDefaultValue()),
+    FIRE_SPREAD("fire_spread", IridiumSkyblock.getInstance().getIslandSettings().settings.fireSpread.getDefaultValue());
 
     private final String settingName;
     private final String defaultValue;

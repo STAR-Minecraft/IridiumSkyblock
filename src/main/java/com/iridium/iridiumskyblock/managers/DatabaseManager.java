@@ -32,7 +32,8 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 public class DatabaseManager {
 
-    private final int version = 3;
+    public static final int CURRENT_VERSION = 4;
+
     private IslandTableManager islandTableManager;
     private UserTableManager userTableManager;
     private ForeignIslandTableManager<IslandBan, Integer> islandBanTableManager;
@@ -60,6 +61,7 @@ public class DatabaseManager {
         String databaseURL = getDatabaseURL(sqlConfig);
 
         DataPersisterManager.registerDataPersisters(XMaterialType.getSingleton());
+        DataPersisterManager.registerDataPersisters(ShopBalance.Persister.getSingleton());
 
         this.connectionSource = new JdbcConnectionSource(
                 databaseURL,
@@ -108,15 +110,15 @@ public class DatabaseManager {
     private void convertDatabaseData(SQL.Driver driver) {
         Path versionFile = Paths.get("plugins", "IridiumSkyblock", "sql_version.txt");
         try {
-            Files.write(versionFile, Collections.singleton(String.valueOf(version)), StandardOpenOption.CREATE_NEW);
-            DataConverter.updateDatabaseData(1, version, connectionSource, driver);
+            Files.write(versionFile, Collections.singleton(String.valueOf(CURRENT_VERSION)), StandardOpenOption.CREATE_NEW);
+            DataConverter.updateDatabaseData(1, CURRENT_VERSION, connectionSource, driver);
         } catch (FileAlreadyExistsException exception) {
             try {
                 int oldVersion = Integer.parseInt(Files.readAllLines(versionFile).get(0));
-                if (oldVersion != version) {
-                    DataConverter.updateDatabaseData(oldVersion, version, connectionSource, driver);
+                if (oldVersion != CURRENT_VERSION) {
+                    DataConverter.updateDatabaseData(oldVersion, CURRENT_VERSION, connectionSource, driver);
                     Files.delete(versionFile);
-                    Files.write(versionFile, Collections.singleton(String.valueOf(version)), StandardOpenOption.CREATE);
+                    Files.write(versionFile, Collections.singleton(String.valueOf(CURRENT_VERSION)), StandardOpenOption.CREATE);
                 }
             } catch (IOException | IndexOutOfBoundsException | NumberFormatException updateException) {
                 updateException.printStackTrace();

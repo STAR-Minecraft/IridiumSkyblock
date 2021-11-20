@@ -1,5 +1,6 @@
 package com.iridium.iridiumskyblock.database;
 
+import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import lombok.Getter;
@@ -42,4 +43,17 @@ public class IslandBank extends IslandData {
     public @NotNull String getUniqueKey() {
         return bankItem + "-" + getIslandId();
     }
+
+    public boolean has(double amount) {
+        return number >= amount;
+    }
+
+    public boolean hasOrDisabled(double amount) {
+        return !isEnabled() || has(amount);
+    }
+
+    public boolean isEnabled() {
+        return IridiumSkyblock.getInstance().getBankItems().getById(bankItem).isEnabled();
+    }
+
 }

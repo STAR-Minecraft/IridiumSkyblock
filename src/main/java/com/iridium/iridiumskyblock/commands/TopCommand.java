@@ -1,11 +1,12 @@
 package com.iridium.iridiumskyblock.commands;
 
 import com.iridium.iridiumskyblock.gui.IslandTopGUI;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  * Command which opens the {@link IslandTopGUI}.
@@ -30,7 +31,7 @@ public class TopCommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
-        player.openInventory(new IslandTopGUI().getInventory());
+        player.openInventory(new IslandTopGUI(player.getOpenInventory().getTopInventory()).getInventory());
         return true;
     }
 

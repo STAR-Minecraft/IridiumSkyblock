@@ -44,7 +44,7 @@ public class MembersCommand extends Command {
             return false;
         }
 
-        player.openInventory(new IslandMembersGUI(island.get()).getInventory());
+        player.openInventory(new IslandMembersGUI(island.get(), player.getOpenInventory().getTopInventory()).getInventory());
         return true;
     }
 

@@ -2,10 +2,11 @@ package com.iridium.iridiumskyblock.commands;
 
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
+import org.bukkit.command.CommandSender;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.command.CommandSender;
 
 /**
  * Command which reloads all configuration files.
@@ -30,6 +31,7 @@ public class ReloadCommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         IridiumSkyblock.getInstance().loadConfigs();
+        IridiumSkyblock.getInstance().getShopBalancesResetTask().restart();
         sender.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().reloaded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
         return true;
     }

@@ -1,7 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
 import com.iridium.iridiumcore.Item;
-import com.iridium.iridiumcore.utils.InventoryUtils;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -51,7 +50,7 @@ public class IslandLogsGUI extends IslandGUI {
         LogInventoryConfig logInventoryConfig = IridiumSkyblock.getInstance().getInventories().logsGUI;
         inventory.clear();
 
-        InventoryUtils.fillInventory(inventory, logInventoryConfig.background);
+        preFillBackground(inventory, logInventoryConfig.background);
 
         setItemStack(inventory, logInventoryConfig.IslandMembers, membersPage, LogAction.USER_JOINED, LogAction.USER_KICKED, LogAction.USER_LEFT, LogAction.USER_DEMOTED, LogAction.USER_PROMOTED);
         setItemStack(inventory, logInventoryConfig.IslandInvites, invitesPage, LogAction.USER_INVITED, LogAction.USER_UNINVITED);
@@ -62,7 +61,8 @@ public class IslandLogsGUI extends IslandGUI {
         setItemStack(inventory, logInventoryConfig.IslandRewards, rewardsPage, LogAction.REWARD_REDEEMED);
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 

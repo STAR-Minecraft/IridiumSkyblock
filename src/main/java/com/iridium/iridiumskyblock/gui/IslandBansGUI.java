@@ -1,6 +1,6 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.utils.InventoryUtils;
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -38,10 +38,14 @@ public class IslandBansGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, getNoItemGUI().background);
 
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        preFillBackground(inventory, getNoItemGUI().background);
+
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         islandBans = new ArrayList<>(IridiumSkyblock.getInstance().getDatabaseManager().getIslandBanTableManager().getEntries(getIsland()));
 
@@ -59,7 +63,8 @@ public class IslandBansGUI extends IslandGUI {
                 });
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
@@ -73,12 +78,15 @@ public class IslandBansGUI extends IslandGUI {
     public void onInventoryClick(InventoryClickEvent event) {
         final int size = IridiumSkyblock.getInstance().getInventories().bansGUI.size;
         Player player = (Player) event.getWhoClicked();
-        if (event.getSlot() == size - 7 && page > 1) {
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == size + previousPage.slot && page > 1) {
             player.openInventory(new IslandBansGUI(page - 1, getIsland(), getPreviousInventory()).getInventory());
             return;
         }
 
-        if (event.getSlot() == size - 3 && (size - 9) * page < islandBans.size()) {
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == size + nextPage.slot && (size - 9) * page < islandBans.size()) {
             player.openInventory(new IslandBansGUI(page + 1, getIsland(), getPreviousInventory()).getInventory());
             return;
         }

@@ -23,4 +23,10 @@ public class NoItemGUI {
      */
     public Background background;
 
+    public boolean hasFooterLine = true;
+
+    public NoItemGUI(int size, String title, Background background) {
+        this(size, title, background, true);
+    }
+
 }

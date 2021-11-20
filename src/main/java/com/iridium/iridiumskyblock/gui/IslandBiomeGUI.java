@@ -1,7 +1,7 @@
 package com.iridium.iridiumskyblock.gui;
 
+import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.dependencies.xseries.XBiome;
-import com.iridium.iridiumcore.utils.InventoryUtils;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
@@ -38,10 +38,13 @@ public class IslandBiomeGUI extends IslandGUI {
     @Override
     public void addContent(Inventory inventory) {
         inventory.clear();
-        InventoryUtils.fillInventory(inventory, IridiumSkyblock.getInstance().getInventories().biomeGUI.background);
+        preFillBackground(inventory, IridiumSkyblock.getInstance().getInventories().biomeGUI.background);
 
-        inventory.setItem(inventory.getSize() - 3, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().nextPage));
-        inventory.setItem(inventory.getSize() - 7, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().previousPage));
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
 
         final long elementsPerPage = inventory.getSize() - 9;
         AtomicInteger index = new AtomicInteger(0);
@@ -55,22 +58,24 @@ public class IslandBiomeGUI extends IslandGUI {
                 );
 
         if (IridiumSkyblock.getInstance().getConfiguration().backButtons && getPreviousInventory() != null) {
-            inventory.setItem(inventory.getSize() + IridiumSkyblock.getInstance().getInventories().backButton.slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().backButton));
+            Item backButton = IridiumSkyblock.getInstance().getInventories().backButton;
+            inventory.setItem(inventory.getSize() + backButton.slot, ItemStackUtils.makeItem(backButton));
         }
     }
 
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-
         final int size = IridiumSkyblock.getInstance().getInventories().biomeGUI.size;
-
         Player player = (Player) event.getWhoClicked();
-        if (event.getSlot() == size - 7 && page > 1) {
+
+        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        if (event.getSlot() == size + previousPage.slot && page > 1) {
             player.openInventory(new IslandBiomeGUI(page - 1, getIsland(), environment, cooldownProvider, getPreviousInventory()).getInventory());
             return;
         }
 
-        if (event.getSlot() == size - 3 && (size - 9) * page < biomes.size()) {
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+        if (event.getSlot() == size + nextPage.slot && (size - 9) * page < biomes.size()) {
             player.openInventory(new IslandBiomeGUI(page + 1, getIsland(), environment, cooldownProvider, getPreviousInventory()).getInventory());
             return;
         }

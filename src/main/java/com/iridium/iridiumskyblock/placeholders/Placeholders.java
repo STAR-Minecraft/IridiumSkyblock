@@ -4,11 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandBooster;
+import com.iridium.iridiumskyblock.database.ShopBalance;
 import com.iridium.iridiumskyblock.database.User;
 import com.iridium.iridiumskyblock.managers.IslandManager;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -171,7 +173,19 @@ public class Placeholders {
             ).orElse(placeholdersConfig.islandBoosterRemainingSeconds));
         }
 
+        // Island Shop Balance Placeholders
+        placeholderBuilder.put(startKey + "_shop_balance_crystals", getShopBalancePlaceholder(islandGetter, "crystals"));
+        placeholderBuilder.put(startKey + "_shop_balance_vault", getShopBalancePlaceholder(islandGetter, "vault"));
+
         return placeholderBuilder.build();
+    }
+
+    private static Placeholder getShopBalancePlaceholder(@NotNull IslandGetter islandGetter, @NotNull String currency) {
+        return player -> islandGetter.getIsland(player).map(island -> {
+            ShopBalance balance = island.getShopBalance();
+            double amount = balance != null ? balance.getBalanceOf(currency).orElse(0D) : 0D;
+            return IridiumSkyblock.getInstance().getNumberFormatter().format(amount);
+        }).orElse(placeholdersConfig.getIslandShopBalanceStub(currency));
     }
 
     private static Map<String, Placeholder> getIslandTopPlaceholders() {
