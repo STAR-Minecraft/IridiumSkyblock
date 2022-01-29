@@ -155,7 +155,7 @@ public class ShopOverviewGUI extends GUI {
 
         PlayerUtils.pay(player, island, crystalsCost, vaultCost);
 
-        shopBalanceConfig.fillWithDefaultAmounts(island, balance);
+        island.resetShopBalance();
 
         IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().save(island);
 

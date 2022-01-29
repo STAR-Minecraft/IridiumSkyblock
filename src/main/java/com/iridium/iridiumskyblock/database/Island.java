@@ -24,11 +24,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents an Island of IridiumSkyblock.
@@ -253,8 +249,11 @@ public final class Island extends DatabaseObject {
     }
 
     public void resetShopBalance() {
-        if(shopBalance != null)
+        if(shopBalance != null) {
             IridiumSkyblock.getInstance().getShop().shopBalanceConfig.fillWithDefaultAmounts(this, shopBalance);
+            this.shopResetAt = System.currentTimeMillis();
+            setChanged(true);
+        }
     }
 
     /**
