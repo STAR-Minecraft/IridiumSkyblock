@@ -3,6 +3,7 @@ package com.iridium.iridiumskyblock.database;
 import com.iridium.iridiumcore.Color;
 import com.iridium.iridiumcore.dependencies.xseries.XMaterial;
 import com.iridium.iridiumskyblock.Cache;
+import com.iridium.iridiumskyblock.DatabaseObject;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.IslandRank;
 import com.iridium.iridiumskyblock.configs.BlockValues;
@@ -10,14 +11,14 @@ import com.iridium.iridiumskyblock.configs.Schematics;
 import com.iridium.iridiumskyblock.managers.IslandManager;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
+import redempt.crunch.CompiledExpression;
+import redempt.crunch.Crunch;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,13 +34,13 @@ import java.util.UUID;
  * Represents an Island of IridiumSkyblock.
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @DatabaseTable(tableName = "islands")
-public final class Island {
+public final class Island extends DatabaseObject {
+
+    private final static CompiledExpression islandLevelEquation = Crunch.compileExpression(IridiumSkyblock.getInstance().getConfiguration().islandLevelEquation);
 
     @DatabaseField(columnName = "id", generatedId = true, canBeNull = false)
-    @Setter(AccessLevel.PRIVATE)
     private int id;
 
     @DatabaseField(columnName = "name", unique = true)
@@ -73,10 +75,15 @@ public final class Island {
     private long shopResetAt;
 
     // Cache resets every 0.5 seconds
-    private Cache<Double> valueCache = new Cache<>(500);
+    private final Cache<Double> valueCache = new Cache<>(500);
 
     // Cache
     private Integer size;
+
+    public Island(String name, int id) {
+        this(name, IridiumSkyblock.getInstance().getSchematics().schematics.values().stream().findFirst().get());
+        this.id = id;
+    }
 
     /**
      * The default constructor.
@@ -100,17 +107,16 @@ public final class Island {
     }
 
     public String getName() {
-        return name == null ? getOwner().getName() : name;
+        return name == null ? IridiumSkyblock.getInstance().getConfiguration().defaultIslandName.replace("%island_owner_name%", getOwner().getName()) : name;
     }
 
     /**
      * Gets the island's level.
-     * TODO: Change the equation
      *
      * @return The islands level
      */
     public int getLevel() {
-        return (int) Math.abs(Math.cbrt(experience + 1));
+        return (int) islandLevelEquation.evaluate(experience);
     }
 
     /**
@@ -121,7 +127,20 @@ public final class Island {
      * @return The experience required to reach this level
      */
     private int getExperienceRequired(int level) {
-        return -1 + (level * level * level);
+        int lower = 0;
+        int upper = Integer.MAX_VALUE;
+        while (lower < upper) {
+            int mid = (lower + upper) / 2;
+            double experience = islandLevelEquation.evaluate(mid);
+            if (experience == level) {
+                return mid;
+            } else if (experience < level) {
+                lower = mid + 1;
+            } else {
+                upper = mid;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -206,6 +225,7 @@ public final class Island {
     public void setHome(@NotNull Location location) {
         Location homeLocation = location.subtract(getCenter(location.getWorld()));
         this.home = homeLocation.getX() + "," + homeLocation.getY() + "," + homeLocation.getZ() + "," + homeLocation.getPitch() + "," + homeLocation.getYaw();
+        setChanged(true);
     }
 
     /**
@@ -246,15 +266,12 @@ public final class Island {
         return valueCache.getCache(() -> {
             double value = extraValue;
 
-            List<IslandBlocks> islandBlocks = IridiumSkyblock.getInstance().getDatabaseManager().getIslandBlocksTableManager().getEntries(this);
-            List<IslandSpawners> islandSpawners = IridiumSkyblock.getInstance().getDatabaseManager().getIslandSpawnersTableManager().getEntries(this);
-
-            for (IslandBlocks islandBlock : islandBlocks) {
-                value = value + getValueOf(islandBlock.getMaterial()) * islandBlock.getAmount();
+            for (Map.Entry<XMaterial, BlockValues.ValuableBlock> valuableBlock : IridiumSkyblock.getInstance().getBlockValues().blockValues.entrySet()) {
+                value += IridiumSkyblock.getInstance().getIslandManager().getIslandBlockAmount(this, valuableBlock.getKey()) * valuableBlock.getValue().value;
             }
 
-            for (IslandSpawners islandSpawner : islandSpawners) {
-                value = value + getValueOf(islandSpawner.getSpawnerType()) * islandSpawner.getAmount();
+            for (Map.Entry<EntityType, BlockValues.ValuableBlock> valuableSpawner : IridiumSkyblock.getInstance().getBlockValues().spawnerValues.entrySet()) {
+                value += IridiumSkyblock.getInstance().getIslandManager().getIslandSpawnerAmount(this, valuableSpawner.getKey()) * valuableSpawner.getValue().value;
             }
 
             return value;
@@ -296,6 +313,7 @@ public final class Island {
     public void setColor(@NotNull Color color) {
         this.color = color;
         IridiumSkyblock.getInstance().getIslandManager().sendIslandBorder(this);
+        setChanged(true);
     }
 
     public void setExperience(int experience) {
@@ -305,6 +323,7 @@ public final class Island {
         if (newLevel > currentLevel) {
             IridiumSkyblock.getInstance().getIslandManager().islandLevelUp(this, newLevel);
         }
+        setChanged(true);
     }
 
     /**
@@ -316,36 +335,34 @@ public final class Island {
      */
     public Location getCenter(World world) {
         if (id == 1) return new Location(world, 0, 0, 0);
-        // In this algorithm id  0 will be where we want id 2 to be and 1 will be where 3 is ect
-        int n = id - 2;
+        // In this algorithm position 2 is where id 1 is, position 3 is where id 2 is, ect.
+        int position = id - 1;
 
-        int r = (int) (Math.floor((Math.sqrt(n + 1) - 1) / 2) + 1);
-        // compute radius : inverse arithmetic sum of 8+16+24+...=
+        // The radius of the last completed square
+        int radius = (int) (Math.floor((Math.sqrt(position) - 1) / 2) + 1);
+        int diameter = radius * 2;
+        int perimeter = diameter * 4;
 
-        int p = (8 * r * (r - 1)) / 2;
-        // compute total point on radius -1 : arithmetic sum of 8+16+24+...
+        // The position the square was last completed at
+        int lastCompletePosition = (perimeter * (radius - 1)) / 2;
 
-        int en = r * 2;
-        // points by face
-
-        int a = (1 + n - p) % (r * 8);
-        // compute de position and shift it so the first is (-r,-r) but (-r+1,-r)
-        // so square can connect
+        // The current index in the perimeter where 1 is first and 0 is the last index
+        int currentIndexInPerimeter = (position - lastCompletePosition) % perimeter;
 
         Location location;
 
-        switch (a / (r * 2)) {
+        switch (currentIndexInPerimeter / diameter) {
             case 0:
-                location = new Location(world, (a - r), 0, -r);
+                location = new Location(world, (currentIndexInPerimeter - radius), 0, -radius);
                 break;
             case 1:
-                location = new Location(world, r, 0, (a % en) - r);
+                location = new Location(world, radius, 0, (currentIndexInPerimeter % diameter) - radius);
                 break;
             case 2:
-                location = new Location(world, r - (a % en), 0, r);
+                location = new Location(world, radius - (currentIndexInPerimeter % diameter), 0, radius);
                 break;
             case 3:
-                location = new Location(world, -r, 0, r - (a % en));
+                location = new Location(world, -radius, 0, radius - (currentIndexInPerimeter % diameter));
                 break;
             default:
                 throw new IllegalStateException("Could not find island location with ID: " + id);
@@ -496,4 +513,27 @@ public final class Island {
         size = null;
     }
 
+    public void setName(String name) {
+        this.name = name;
+        setChanged(true);
+    }
+
+    public void setVisitable(boolean visitable) {
+        this.visitable = visitable;
+        setChanged(true);
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+        setChanged(true);
+    }
+
+    public void setExtraValue(double extraValue) {
+        this.extraValue = extraValue;
+        setChanged(true);
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
 }

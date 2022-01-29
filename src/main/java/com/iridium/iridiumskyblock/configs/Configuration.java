@@ -31,6 +31,8 @@ public class Configuration {
     public String dateTimeFormat = "EEEE, MMMM dd HH:mm:ss";
     public String spawnWorldName = "world";
     public String defaultCommandSyntax = "/is %command%";
+    public String islandLevelEquation = "abs(cbrt($1+1))";
+    public String defaultIslandName = "%island_owner_name%'s Island";
 
     public boolean enableCheckVersion = true;
     public boolean defaultIslandPublic = true;
@@ -42,6 +44,7 @@ public class Configuration {
     public boolean patreonMessage = true;
     public boolean islandMenu = true;
     public boolean backButtons = true;
+    public boolean createIslandOnHome = true;
 
     public IslandRegenSettings regenSettings = new IslandRegenSettings();
 
@@ -50,7 +53,7 @@ public class Configuration {
     public IslandDamageSettings pvpSettings = new IslandDamageSettings();
 
     public int distance = 151;
-    public int islandRecalculateInterval = 10;
+    public int islandRecalculateInterval = 5;
     public int maxIslandName = 16;
     public int minIslandName = 3;
     public int teleportDelay = 0;
@@ -192,7 +195,8 @@ public class Configuration {
                 EntityDamageEvent.DamageCause.ENTITY_ATTACK,
                 EntityDamageEvent.DamageCause.HOT_FLOOR,
                 EntityDamageEvent.DamageCause.LAVA,
-                EntityDamageEvent.DamageCause.CONTACT
+                EntityDamageEvent.DamageCause.CONTACT,
+                EntityDamageEvent.DamageCause.FIRE_TICK
         );
 
     }

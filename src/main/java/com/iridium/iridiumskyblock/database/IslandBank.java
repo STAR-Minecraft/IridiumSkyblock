@@ -56,4 +56,9 @@ public class IslandBank extends IslandData {
         return IridiumSkyblock.getInstance().getBankItems().getById(bankItem).isEnabled();
     }
 
+    public void setNumber(double number) {
+        this.number = number;
+        setChanged(true);
+    }
+
 }

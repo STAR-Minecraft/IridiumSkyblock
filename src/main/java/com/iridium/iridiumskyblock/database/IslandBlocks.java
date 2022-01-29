@@ -5,7 +5,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,8 +24,10 @@ public final class IslandBlocks extends IslandData {
     private @NotNull XMaterial material;
 
     @DatabaseField(columnName = "amount", canBeNull = false)
-    @Setter
     private int amount;
+
+    @DatabaseField(columnName = "extra_amount", canBeNull = false)
+    private int extraAmount;
 
     /**
      * The default constructor.
@@ -44,4 +45,13 @@ public final class IslandBlocks extends IslandData {
         return material.name() + "-" + getIslandId();
     }
 
+    public void setAmount(int amount) {
+        this.amount = amount;
+        setChanged(true);
+    }
+
+    public void setExtraAmount(int extraAmount) {
+        this.extraAmount = extraAmount;
+        setChanged(true);
+    }
 }

@@ -2,6 +2,7 @@ package com.iridium.iridiumskyblock;
 
 import com.iridium.iridiumcore.Color;
 import com.iridium.iridiumcore.IridiumCore;
+import com.iridium.iridiumcore.dependencies.xseries.XMaterial;
 import com.iridium.iridiumcore.utils.NumberFormatter;
 import com.iridium.iridiumskyblock.api.IridiumSkyblockAPI;
 import com.iridium.iridiumskyblock.api.IridiumSkyblockReloadEvent;
@@ -24,6 +25,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.EntityType;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
@@ -89,6 +91,7 @@ public class IridiumSkyblock extends IridiumCore {
     private Map<String, Booster> boosterList;
 
     private Economy economy;
+
     private StackerSupport stackerSupport;
 
     private ShopBalancesResetTask shopBalancesResetTask;
@@ -171,9 +174,6 @@ public class IridiumSkyblock extends IridiumCore {
         this.shopManager = new ShopManager();
         shopManager.reloadCategories();
 
-        // Initialize the API
-        IridiumSkyblockAPI.initializeAPI(this);
-
         this.schematicManager = new SchematicManager();
 
         // Initialize Vault economy support
@@ -187,19 +187,21 @@ public class IridiumSkyblock extends IridiumCore {
         Bukkit.getOnlinePlayers().forEach(player -> getIslandManager().getIslandViaLocation(player.getLocation()).ifPresent(island -> PlayerUtils.sendBorder(player, island)));
 
         // Auto recalculate islands
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            ListIterator<Integer> islands = getDatabaseManager().getIslandTableManager().getEntries().stream().map(Island::getId).collect(Collectors.toList()).listIterator();
+        if (getConfiguration().islandRecalculateInterval > 0) {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+                ListIterator<Integer> islands = getDatabaseManager().getIslandTableManager().getEntries().stream().map(Island::getId).collect(Collectors.toList()).listIterator();
 
-            @Override
-            public void run() {
-                if (!islands.hasNext()) {
-                    islands = getDatabaseManager().getIslandTableManager().getEntries().stream().map(Island::getId).collect(Collectors.toList()).listIterator();
-                } else {
-                    getIslandManager().getIslandById(islands.next()).ifPresent(island -> getIslandManager().recalculateIsland(island));
+                @Override
+                public void run() {
+                    if (!islands.hasNext()) {
+                        islands = getDatabaseManager().getIslandTableManager().getEntries().stream().map(Island::getId).collect(Collectors.toList()).listIterator();
+                    } else {
+                        getIslandManager().getIslandById(islands.next()).ifPresent(island -> getIslandManager().recalculateIsland(island));
+                    }
                 }
-            }
 
-        }, 0, getConfiguration().islandRecalculateInterval * 20L);
+            }, 0, getConfiguration().islandRecalculateInterval * 20L);
+        }
 
         // Automatically update all inventories
         Bukkit.getScheduler().runTaskTimer(this, () -> Bukkit.getServer().getOnlinePlayers().forEach(player -> {
@@ -210,11 +212,13 @@ public class IridiumSkyblock extends IridiumCore {
         }), 0, 20);
 
         // Register worlds with multiverse
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            registerMultiverse(islandManager.getWorld());
-            registerMultiverse(islandManager.getNetherWorld());
-            registerMultiverse(islandManager.getEndWorld());
-        }, 1);
+        if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                registerMultiverse(islandManager.getWorld());
+                registerMultiverse(islandManager.getNetherWorld());
+                registerMultiverse(islandManager.getEndWorld());
+            }, 1);
+        }
 
         // Reset islands shop balances
         this.shopBalancesResetTask = new ShopBalancesResetTask(this);
@@ -252,8 +256,16 @@ public class IridiumSkyblock extends IridiumCore {
     private StackerSupport registerBlockStackerSupport() {
         if (Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) return new RoseStackerSupport();
         if (Bukkit.getPluginManager().isPluginEnabled("WildStacker")) return new WildStackerSupport();
-        return island -> {
-            // Do nothing
+        return new StackerSupport() {
+            @Override
+            public int getExtraBlocks(Island island, XMaterial material) {
+                return 0;
+            }
+
+            @Override
+            public int getExtraSpawners(Island island, EntityType entityType) {
+                return 0;
+            }
         };
     }
 
@@ -329,6 +341,7 @@ public class IridiumSkyblock extends IridiumCore {
         pluginManager.registerEvents(new PotionBrewListener(), this);
         pluginManager.registerEvents(new SpawnerSpawnListener(), this);
         pluginManager.registerEvents(new VehicleDamageListener(), this);
+        pluginManager.registerEvents(new BlockBurnListener(), this);
     }
 
     /**
@@ -374,10 +387,8 @@ public class IridiumSkyblock extends IridiumCore {
      * @param world The specified World
      */
     private void registerMultiverse(World world) {
-        if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
-            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "mv import " + world.getName() + " normal -g " + getName());
-            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "mv modify set generator " + getName() + " " + world.getName());
-        }
+        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "mv import " + world.getName() + " normal -g " + getName());
+        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "mv modify set generator " + getName() + " " + world.getName());
     }
 
     /**

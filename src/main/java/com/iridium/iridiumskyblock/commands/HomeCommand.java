@@ -2,6 +2,7 @@ package com.iridium.iridiumskyblock.commands;
 
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
+import com.iridium.iridiumskyblock.commands.home.CurrentOffsetCommand;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.User;
 import java.time.Duration;
@@ -17,11 +18,15 @@ import org.bukkit.entity.Player;
  */
 public class HomeCommand extends Command {
 
+    public CurrentOffsetCommand currentOffsetCommand = new CurrentOffsetCommand();
+
     /**
      * The default constructor.
      */
     public HomeCommand() {
         super(Arrays.asList("home", "go"), "Teleport to your Island home", "", true, Duration.ofSeconds(3));
+
+        addChilds(currentOffsetCommand);
     }
 
     /**
@@ -40,6 +45,9 @@ public class HomeCommand extends Command {
 
         if (island.isPresent()) {
             IridiumSkyblock.getInstance().getIslandManager().teleportHome(player, island.get(), IridiumSkyblock.getInstance().getConfiguration().teleportDelay);
+            return true;
+        } else if (IridiumSkyblock.getInstance().getConfiguration().createIslandOnHome) {
+            IridiumSkyblock.getInstance().getCommands().createCommand.execute(player, new String[]{});
             return true;
         } else {
             player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().noIsland.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));

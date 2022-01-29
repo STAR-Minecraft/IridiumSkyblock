@@ -146,7 +146,7 @@ public class Messages {
     public String flightEnabled = "%prefix% &7Island flight enabled.";
     public String flightDisabled = "%prefix% &7Island flight disabled.";
     public String bankWithdrew = "%prefix% &7You successfully withdrew %amount% %type% from your Island bank.";
-    public String bankDeposited = "%prefix% &7You successfully deposited %amount% %type% from your Island bank.";
+    public String bankDeposited = "%prefix% &7You successfully deposited %amount% %type% to your Island bank.";
     public String insufficientFundsToWithdrew = "%prefix% &7You do not have enough %type% to withdraw from your Island bank.";
     public String insufficientFundsToDeposit = "%prefix% &7You do not have enough %type% to deposit into your Island bank.";
     public String blockLimitReached = "%prefix% &7The maximum block limit for %block% (%limit%) has been reached!";
@@ -186,6 +186,7 @@ public class Messages {
     public String borderColorDisabled = "%prefix% &7That border color has been disabled.";
     public String activeCooldown = "%prefix% &7You cannot do that due to a running cooldown, please wait %hours% hour(s), %minutes% minute(s), %seconds% second(s)!";
     public String clickToJoinHover = "&7Click to join this Island!";
+    public String islandCenterOffset = "%prefix% &7Your position relative to the Island center is: x=%x%, y=%y%, z=%z%, yaw=%yaw%";
     public String yes = "Yes";
     public String no = "No";
     public String none = "None";
