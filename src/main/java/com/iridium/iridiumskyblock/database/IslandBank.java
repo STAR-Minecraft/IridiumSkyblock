@@ -5,7 +5,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,7 +22,6 @@ public class IslandBank extends IslandData {
     private String bankItem;
 
     @DatabaseField(columnName = "number")
-    @Setter
     private double number;
 
     /**

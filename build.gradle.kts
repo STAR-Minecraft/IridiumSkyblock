@@ -30,7 +30,8 @@ repositories {
 dependencies {
     // Dependencies that we want to shade in
     implementation("org.jetbrains:annotations:22.0.0")
-    implementation("com.iridium:IridiumCore:1.5.1")
+    implementation("com.iridium:iridiumcore:1.5.1")
+    implementation("com.github.Redempt:Crunch:1.0.0")
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
