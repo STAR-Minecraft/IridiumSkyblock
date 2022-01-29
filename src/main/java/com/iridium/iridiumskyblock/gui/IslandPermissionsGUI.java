@@ -92,7 +92,7 @@ public class IslandPermissionsGUI extends IslandGUI {
             return;
         }
 
-        Item nextPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
         if (event.getSlot() == getNoItemGUI().size + nextPage.slot && hasPage(page + 1)) {
             page++;
             event.getWhoClicked().openInventory(getInventory());

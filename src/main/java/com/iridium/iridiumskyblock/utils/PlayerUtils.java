@@ -7,6 +7,7 @@ import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandBank;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -44,11 +45,12 @@ public class PlayerUtils {
         }
 
         IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
-        if(islandMoney.hasOrDisabled(money)) {
+        if(islandMoney.isEnabled()) {
             islandMoney.setNumber(islandMoney.getNumber() - money);
         } else {
             Economy economy = IridiumSkyblock.getInstance().getEconomy();
-            economy.withdrawPlayer(player, money);
+            EconomyResponse response = economy.withdrawPlayer(player, money);
+            return response.transactionSuccess();
         }
 
         return true;
@@ -68,7 +70,7 @@ public class PlayerUtils {
         IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
         Economy economy = IridiumSkyblock.getInstance().getEconomy();
 
-        return islandCrystals.hasOrDisabled(crystals) && (islandMoney.hasOrDisabled(money) || (economy != null && economy.has(player, money)));
+        return islandCrystals.hasOrDisabled(crystals) && (islandMoney.hasIfEnabled(money) || (economy != null && economy.has(player, money)));
     }
 
     /**

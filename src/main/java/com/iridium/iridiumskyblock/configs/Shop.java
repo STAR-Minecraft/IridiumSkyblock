@@ -851,6 +851,7 @@ public class Shop {
     public static class ShopBalanceConfig {
         private static final double DEFAULT_LIMIT = -1D;
 
+        public boolean fillDefaultBalancesToLimit = false;
         public boolean resetBalancesEveryDay = true;
 
         public Map<String, Double> resetPrice = ImmutableMap.<String, Double>builder()
@@ -914,17 +915,27 @@ public class Shop {
         public void fillWithDefaultAmounts(@NotNull Island island, @NotNull ShopBalance shopBalance) {
             shopBalance.clear();
 
-            ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
-            shopBalance.set("crystals", upgrade.crystalsLimit);
-            shopBalance.set("vault", upgrade.vaultLimit);
+            if(fillDefaultBalancesToLimit) {
+                ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
+                shopBalance.set("crystals", upgrade.crystalsLimit);
+                shopBalance.set("vault", upgrade.vaultLimit);
+            } else {
+                shopBalance.set("crystals", 0D);
+                shopBalance.set("vault", 0D);
+            }
         }
 
         @JsonIgnore
         public boolean isDefaultBalance(@NotNull Island island, @NotNull ShopBalance shopBalance) {
-            ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
             double crystalsBalance = shopBalance.getBalanceOf("crystals").orElse(0D);
             double vaultBalance = shopBalance.getBalanceOf("vault").orElse(0D);
-            return crystalsBalance == upgrade.crystalsLimit && vaultBalance == upgrade.vaultLimit;
+
+            if(fillDefaultBalancesToLimit) {
+                ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
+                return crystalsBalance == upgrade.crystalsLimit && vaultBalance == upgrade.vaultLimit;
+            } else {
+                return crystalsBalance == 0 && vaultBalance == 0;
+            }
         }
 
         @JsonIgnore

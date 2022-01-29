@@ -46,6 +46,10 @@ public class IslandBank extends IslandData {
         return number >= amount;
     }
 
+    public boolean hasIfEnabled(double amount) {
+        return isEnabled() && has(amount);
+    }
+
     public boolean hasOrDisabled(double amount) {
         return !isEnabled() || has(amount);
     }
