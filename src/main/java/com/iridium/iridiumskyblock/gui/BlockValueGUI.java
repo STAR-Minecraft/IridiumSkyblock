@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +43,20 @@ public class BlockValueGUI extends GUI {
 
         preFillBackground(inventory, getNoItemGUI().background);
 
-        Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
-        inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+        Map<? extends Enum<? extends Enum<?>>, ValuableBlock> valuableBlockMap = guiType == BlockValueType.SPAWNER
+                ? IridiumSkyblock.getInstance().getBlockValues().spawnerValues
+                : IridiumSkyblock.getInstance().getBlockValues().blockValues;
 
-        Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
-        inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
+        boolean hasNextPage = valuableBlockMap.entrySet().stream().anyMatch(valueEntry -> valueEntry.getValue().page == page + 1);
+        if (hasNextPage) {
+            Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
+            inventory.setItem(inventory.getSize() + nextPage.slot, ItemStackUtils.makeItem(nextPage));
+        }
+
+        if (page > 1) {
+            Item previousPage = IridiumSkyblock.getInstance().getInventories().previousPage;
+            inventory.setItem(inventory.getSize() + previousPage.slot, ItemStackUtils.makeItem(previousPage));
+        }
 
         if (guiType == BlockValueType.BLOCK) {
             IridiumSkyblock.getInstance().getBlockValues().blockValues.entrySet().stream()
@@ -98,7 +108,12 @@ public class BlockValueGUI extends GUI {
             return;
         }
 
-        boolean hasNextPage = (guiType == BlockValueType.SPAWNER ? IridiumSkyblock.getInstance().getBlockValues().spawnerValues : IridiumSkyblock.getInstance().getBlockValues().blockValues).entrySet().stream().anyMatch(valueEntry -> valueEntry.getValue().page == page + 1);
+        Map<? extends Enum<? extends Enum<?>>, ValuableBlock> valuableBlockMap = guiType == BlockValueType.SPAWNER
+                ? IridiumSkyblock.getInstance().getBlockValues().spawnerValues
+                : IridiumSkyblock.getInstance().getBlockValues().blockValues;
+
+        boolean hasNextPage = valuableBlockMap.entrySet().stream().anyMatch(valueEntry -> valueEntry.getValue().page == page + 1);
+
         Item nextPage = IridiumSkyblock.getInstance().getInventories().nextPage;
         if (event.getSlot() == getNoItemGUI().size + nextPage.slot && hasNextPage) {
             page++;
