@@ -55,6 +55,8 @@ public class IslandSettingsGUI extends IslandGUI {
         IslandSettings.ValueAliases valueAliases = islandSettings.valueAliases;
 
         for (Map.Entry<String, Setting> setting : IridiumSkyblock.getInstance().getSettingsList().entrySet()) {
+            if (!setting.getValue().isModifiable()) continue;
+
             IslandSetting islandSetting = IridiumSkyblock.getInstance().getIslandManager().getIslandSetting(getIsland(), setting.getKey(), setting.getValue().getDefaultValue());
             SettingType settingType = SettingType.getByName(setting.getKey());
 
@@ -133,6 +135,7 @@ public class IslandSettingsGUI extends IslandGUI {
 
         for (Map.Entry<String, Setting> setting : IridiumSkyblock.getInstance().getSettingsList().entrySet()) {
             if (event.getSlot() != setting.getValue().getItem().slot) continue;
+            if (!setting.getValue().isModifiable()) continue;
 
             SettingType settingType = SettingType.getByName(setting.getKey());
             IslandSetting islandSetting = islandManager.getIslandSetting(getIsland(), settingType);
