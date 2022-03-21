@@ -27,7 +27,15 @@ public class SchematicManager {
     private final boolean fawe = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit") || Bukkit.getPluginManager().isPluginEnabled("AsyncWorldEdit");
 
     public SchematicManager() {
-        this.schematicPaster = worldEdit || fawe ? new WorldEdit() : new Schematic();
+        SchematicPaster schematicPaster = worldEdit || fawe ? new WorldEdit() : new Schematic();
+
+        if ((worldEdit || fawe) && !WorldEdit.isWorking())
+        {
+            IridiumSkyblock.getInstance().getLogger().warning("WorldEdit version doesn't support minecraft version, falling back to default integration");
+            schematicPaster = new Schematic();
+        }
+
+        this.schematicPaster = schematicPaster;
         this.schematicFiles = new HashMap<>();
         loadSchematicFiles();
     }
