@@ -16,6 +16,15 @@ public class PlaceholderBuilder {
         placeholderList.add(new Placeholder("prefix", IridiumSkyblock.getInstance().getConfiguration().prefix));
     }
 
+    public PlaceholderBuilder add(Placeholder placeholder) {
+        placeholderList.add(placeholder);
+        return this;
+    }
+
+    public PlaceholderBuilder add(String key, Object value) {
+        return add(new Placeholder(key, String.valueOf(value)));
+    }
+
     public PlaceholderBuilder applyIslandPlaceholders(Island island) {
         IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "member");
         int memberLimit = IridiumSkyblock.getInstance().getUpgrades().memberUpgrade.upgrades.get(islandUpgrade.getLevel()).amount;

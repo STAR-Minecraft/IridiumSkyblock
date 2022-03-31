@@ -26,6 +26,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,7 +76,8 @@ public class IslandSettingsGUI extends IslandGUI {
                     break;
             }
 
-            inventory.setItem(setting.getValue().getItem().slot, ItemStackUtils.makeItem(setting.getValue().getItem(), Collections.singletonList(new Placeholder("value", value))));
+            List<Placeholder> placeholderList = Collections.singletonList(new Placeholder("value", value));
+            inventory.setItem(setting.getValue().getItem().slot, ItemStackUtils.makeItem(setting.getValue().getItem(), placeholderList));
         }
 
         for (Item featureItem : islandSettings.features.getActiveFeatures()) {
@@ -124,7 +126,7 @@ public class IslandSettingsGUI extends IslandGUI {
         Item biomeItem = features.biomeItem;
         if (biomeItem != null && event.getSlot() == biomeItem.slot) {
             World.Environment environment = player.getWorld().getEnvironment();
-            player.openInventory(new IslandBiomeGUI(1, getIsland(), environment, cooldownProvider, player.getOpenInventory().getTopInventory()).getInventory());
+            player.openInventory(new IslandBiomeGUI(getIsland(), environment, cooldownProvider, player.getOpenInventory().getTopInventory()).getInventory());
             return;
         }
 

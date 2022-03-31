@@ -4,6 +4,7 @@ import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
 import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
+import com.iridium.iridiumskyblock.PlaceholderBuilder;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandWarp;
 import org.bukkit.Material;
@@ -12,7 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,13 +38,17 @@ public class IslandWarpsGUI extends IslandGUI {
 
         List<IslandWarp> islandWarps = IridiumSkyblock.getInstance().getDatabaseManager().getIslandWarpTableManager().getEntries(getIsland());
         Collections.reverse(islandWarps);
+
         for (IslandWarp islandWarp : islandWarps) {
             int slot = IridiumSkyblock.getInstance().getConfiguration().islandWarpSlots.get(atomicInteger.getAndIncrement());
-            ItemStack itemStack = ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().warpsGUI.item, Arrays.asList(
-                    new Placeholder("island_name", getIsland().getName()),
-                    new Placeholder("warp_name", islandWarp.getName()),
-                    new Placeholder("description", islandWarp.getDescription() != null ? islandWarp.getDescription() : "")
-            ));
+
+            List<Placeholder> placeholderList = new PlaceholderBuilder()
+                    .add("island_name", getIsland().getName())
+                    .add("warp_name", islandWarp.getName())
+                    .add("description", islandWarp.getDescription() != null ? islandWarp.getDescription() : "")
+                    .build();
+
+            ItemStack itemStack = ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().warpsGUI.item, placeholderList);
             Material material = islandWarp.getIcon().parseMaterial();
             if (material != null) itemStack.setType(material);
             inventory.setItem(slot, itemStack);

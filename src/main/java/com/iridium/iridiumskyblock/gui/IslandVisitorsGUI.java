@@ -57,6 +57,7 @@ public class IslandVisitorsGUI extends PagedGUI<User> {
                 .applyPlayerPlaceholders(user)
                 .applyIslandPlaceholders(island)
                 .build();
+
         return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().visitorsGUI.item, placeholderList);
     }
 
@@ -71,11 +72,13 @@ public class IslandVisitorsGUI extends PagedGUI<User> {
         super.onInventoryClick(event);
         User visitor = getItem(event.getSlot());
         if (visitor == null) return;
+
         if (event.isLeftClick()) {
             IridiumSkyblock.getInstance().getCommands().expelCommand.execute(event.getWhoClicked(), new String[]{"", visitor.getName()});
         } else if (event.isRightClick()) {
             IridiumSkyblock.getInstance().getCommands().banCommand.execute(event.getWhoClicked(), new String[]{"", visitor.getName()});
         }
+
         addContent(event.getInventory());
     }
 }

@@ -2,6 +2,7 @@ package com.iridium.iridiumskyblock.gui;
 
 import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
+import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
 import com.iridium.iridiumskyblock.database.Island;
@@ -43,7 +44,12 @@ public class IslandTopGUI extends GUI {
             if (islands.size() >= rank) {
                 Island island = islands.get(rank - 1);
                 islandSlots.put(slot, island);
-                inventory.setItem(slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().islandTopGUI.item, new PlaceholderBuilder().applyIslandPlaceholders(island).build()));
+
+                List<Placeholder> placeholderList = new PlaceholderBuilder()
+                        .applyIslandPlaceholders(island)
+                        .build();
+
+                inventory.setItem(slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().islandTopGUI.item, placeholderList));
             } else {
                 inventory.setItem(slot, ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().islandTopGUI.filler));
             }

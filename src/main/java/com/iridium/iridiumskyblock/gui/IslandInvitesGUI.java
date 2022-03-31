@@ -57,9 +57,10 @@ public class IslandInvitesGUI extends PagedGUI<IslandInvite> {
         List<Placeholder> placeholderList = new PlaceholderBuilder()
                 .applyPlayerPlaceholders(islandInvite.getUser())
                 .applyIslandPlaceholders(island)
+                .add("inviter", islandInvite.getInviter().getName())
+                .add("time", islandInvite.getTime().format(DateTimeFormatter.ofPattern(IridiumSkyblock.getInstance().getConfiguration().dateTimeFormat)))
                 .build();
-        placeholderList.add(new Placeholder("inviter", islandInvite.getInviter().getName()));
-        placeholderList.add(new Placeholder("time", islandInvite.getTime().format(DateTimeFormatter.ofPattern(IridiumSkyblock.getInstance().getConfiguration().dateTimeFormat))));
+
         return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().islandInvitesGUI.item, placeholderList);
     }
 

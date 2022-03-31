@@ -54,11 +54,13 @@ public class IslandBansGUI extends PagedGUI<IslandBan> {
 
     @Override
     public ItemStack getItemStack(IslandBan islandBan) {
-        List<Placeholder> placeholderList = new PlaceholderBuilder().applyPlayerPlaceholders(islandBan.getBannedUser())
+        List<Placeholder> placeholderList = new PlaceholderBuilder()
+                .applyPlayerPlaceholders(islandBan.getBannedUser())
                 .applyIslandPlaceholders(island)
+                .add("ban_time", islandBan.getBanTime().format(DateTimeFormatter.ofPattern(IridiumSkyblock.getInstance().getConfiguration().dateTimeFormat)))
+                .add("banned_by", islandBan.getBanner().getName())
                 .build();
-        placeholderList.add(new Placeholder("ban_time", islandBan.getBanTime().format(DateTimeFormatter.ofPattern(IridiumSkyblock.getInstance().getConfiguration().dateTimeFormat))));
-        placeholderList.add(new Placeholder("banned_by", islandBan.getBanner().getName()));
+
         return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().bansGUI.item, placeholderList);
     }
 

@@ -2,6 +2,7 @@ package com.iridium.iridiumskyblock.gui;
 
 import com.iridium.iridiumcore.gui.PagedGUI;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
+import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +56,11 @@ public class VisitGUI extends PagedGUI<Island> {
 
     @Override
     public ItemStack getItemStack(Island island) {
-        return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().visitGUI.item, new PlaceholderBuilder().applyIslandPlaceholders(island).build());
+        List<Placeholder> placeholderList = new PlaceholderBuilder()
+                .applyIslandPlaceholders(island)
+                .build();
+
+        return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().visitGUI.item, placeholderList);
     }
 
     /**

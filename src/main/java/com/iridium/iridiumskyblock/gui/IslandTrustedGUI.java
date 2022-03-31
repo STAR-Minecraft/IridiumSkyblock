@@ -56,8 +56,9 @@ public class IslandTrustedGUI extends PagedGUI<IslandTrusted> {
         List<Placeholder> placeholderList = new PlaceholderBuilder()
                 .applyPlayerPlaceholders(islandTrusted.getUser())
                 .applyIslandPlaceholders(island)
+                .add("trustee", islandTrusted.getTruster().getName())
                 .build();
-        placeholderList.add(new Placeholder("trustee", islandTrusted.getTruster().getName()));
+
         return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().trustedGUI.item, placeholderList);
     }
 

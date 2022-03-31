@@ -1,57 +1,43 @@
 package com.iridium.iridiumskyblock.gui;
 
-import com.iridium.iridiumcore.gui.PagedGUI;
 import com.iridium.iridiumcore.Item;
 import com.iridium.iridiumcore.utils.ItemStackUtils;
-import com.iridium.iridiumcore.utils.StringUtils;
+import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.PlaceholderBuilder;
-import com.iridium.iridiumskyblock.configs.inventories.NoItemGUI;
+import com.iridium.iridiumskyblock.configs.inventories.MembersInventoryConfig;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.User;
-import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * GUI which displays all members of an Island and allows quick rank management.
  */
-public class IslandMembersGUI extends PagedGUI<User> {
+public class IslandMembersGUI extends IslandGUI {
 
-    private final Island island;
+    private int page = 1;
+    private final Map<Integer, User> members;
 
-    public IslandMembersGUI(Island island, Inventory previousInventory) {
-        super(1,
-                IridiumSkyblock.getInstance().getInventories().membersGUI.size,
-                IridiumSkyblock.getInstance().getInventories().membersGUI.background,
-                IridiumSkyblock.getInstance().getInventories().previousPage,
-                IridiumSkyblock.getInstance().getInventories().nextPage,
-                previousInventory,
-                IridiumSkyblock.getInstance().getInventories().backButton
-        );
-        this.island = island;
-    }
-
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        NoItemGUI noItemGUI = IridiumSkyblock.getInstance().getInventories().membersGUI;
-        Inventory inventory = Bukkit.createInventory(this, getSize(), StringUtils.color(noItemGUI.title));
-        addContent(inventory);
-        return inventory;
+    /**
+     * The default constructor.
+     *
+     * @param island The Island this GUI belongs to
+     */
+    public IslandMembersGUI(@NotNull Island island, Inventory previousInventory) {
+        super(IridiumSkyblock.getInstance().getInventories().membersGUI, previousInventory, island);
+        this.members = new HashMap<>();
     }
 
     @Override
-    public Collection<User> getPageObjects() {
-        return IridiumSkyblock.getInstance().getIslandManager().getIslandMembers(island);
-    }
-
     public void addContent(Inventory inventory) {
-        // TODO fix that
         inventory.clear();
         members.clear();
 
@@ -80,7 +66,12 @@ public class IslandMembersGUI extends PagedGUI<User> {
             if (itemSlot == -1)
                 break;
 
-            inventory.setItem(itemSlot, ItemStackUtils.makeItem(membersGUI.listItem, new PlaceholderBuilder().applyPlayerPlaceholders(user).applyIslandPlaceholders(getIsland()).build()));
+            List<Placeholder> placeholderList = new PlaceholderBuilder()
+                    .applyPlayerPlaceholders(user)
+                    .applyIslandPlaceholders(getIsland())
+                    .build();
+
+            inventory.setItem(itemSlot, ItemStackUtils.makeItem(membersGUI.listItem, placeholderList));
             members.put(itemSlot, user);
         }
 
@@ -100,29 +91,14 @@ public class IslandMembersGUI extends PagedGUI<User> {
         }
     }
 
-    @Override
-    public ItemStack getItemStack(User user) {
-        return ItemStackUtils.makeItem(IridiumSkyblock.getInstance().getInventories().membersGUI.item, new PlaceholderBuilder()
-                .applyIslandPlaceholders(island)
-                .applyPlayerPlaceholders(user)
-                .build()
-        );
-    }
-
+    /**
+     * Called when there is a click in this GUI.
+     * Cancelled automatically.
+     *
+     * @param event The InventoryClickEvent provided by Bukkit
+     */
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-        super.onInventoryClick(event);
-        User user = getItem(event.getSlot());
-        if (user == null) return;
-        switch (event.getClick()) {
-            case LEFT:
-                IridiumSkyblock.getInstance().getCommands().demoteCommand.execute(event.getWhoClicked(), new String[]{"", user.getName()});
-                break;
-            case RIGHT:
-                IridiumSkyblock.getInstance().getCommands().promoteCommand.execute(event.getWhoClicked(), new String[]{"", user.getName()});
-                break;
-        }
-        addContent(event.getInventory());
         if (members.containsKey(event.getSlot())) {
             User user = members.get(event.getSlot());
 
@@ -158,13 +134,14 @@ public class IslandMembersGUI extends PagedGUI<User> {
 
         Item visitorsItem = membersGUI.visitorsItem;
         if (visitorsItem != null && event.getSlot() == visitorsItem.slot) {
-            event.getWhoClicked().openInventory(new IslandVisitorsGUI(1, getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
+            event.getWhoClicked().openInventory(new IslandVisitorsGUI(getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
             return;
         }
 
         Item bansItem = membersGUI.bansItem;
         if (bansItem != null && event.getSlot() == bansItem.slot) {
-            event.getWhoClicked().openInventory(new IslandBansGUI(1, getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
+            event.getWhoClicked().openInventory(new IslandBansGUI(getIsland(), player.getOpenInventory().getTopInventory()).getInventory());
         }
     }
+
 }

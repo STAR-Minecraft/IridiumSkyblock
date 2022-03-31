@@ -45,6 +45,7 @@ public class IslandUpgradesGUI extends IslandGUI {
                 UpgradeData upgradeData = upgrade.getValue().upgrades.get(level);
                 placeholderList.addAll(upgradeData.getPlaceholders());
             }
+
             if (upgrade.getValue().upgrades.get(level + 1) != null) {
                 UpgradeData upgradeData = upgrade.getValue().upgrades.get(level + 1);
                 placeholderList.add(new Placeholder("crystalscost", String.valueOf(upgradeData.crystals)));
