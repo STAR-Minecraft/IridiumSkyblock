@@ -21,17 +21,19 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://ci.ender.zone/plugin/repository/everything/")
     maven("https://jitpack.io")
-    maven("https://nexus.iridiumdevelopment.net/repository/maven-releases/")
+    maven("https://redempt.dev")
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.rosewooddev.io/repository/public/")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
+    maven("https://maven.enginehub.org/repo/")
+    maven("https://nexus.iridiumdevelopment.net/repository/maven-releases/")
 }
 
 dependencies {
     // Dependencies that we want to shade in
     implementation("org.jetbrains:annotations:23.0.0")
     implementation("com.iridium:iridiumcore:1.6.6")
-    implementation("com.github.Redempt:Crunch:1.0.0")
+    implementation("com.github.Redempt:Crunch:1.0")
     implementation("com.j256.ormlite:ormlite-core:6.1")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
@@ -46,7 +48,7 @@ dependencies {
     compileOnly("com.github.OmerBenGera:WildStackerAPI:master")
     compileOnly("com.songoda:UltimateStacker:2.1.7")
     compileOnly("com.songoda:EpicSpawners:7.0.8")
-    compileOnly("com.sk89q:WorldEdit:7.2.6")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.6")
 
     // Enable lombok annotation processing
     annotationProcessor("org.projectlombok:lombok:1.18.22")
