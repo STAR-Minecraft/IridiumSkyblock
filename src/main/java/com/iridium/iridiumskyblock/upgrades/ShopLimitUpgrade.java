@@ -8,12 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @NoArgsConstructor
-public class ShopBalanceLimitUpgrade extends UpgradeData{
+public class ShopLimitUpgrade extends UpgradeData{
 
     public double crystalsLimit;
     public double vaultLimit;
 
-    public ShopBalanceLimitUpgrade(int money, int crystals, double crystalsLimit, double vaultLimit) {
+    public ShopLimitUpgrade(int money, int crystals, double crystalsLimit, double vaultLimit) {
         super(money, crystals);
         this.crystalsLimit = crystalsLimit;
         this.vaultLimit = vaultLimit;

@@ -3,6 +3,7 @@ package com.iridium.iridiumskyblock.managers;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.Mission;
+import com.iridium.iridiumskyblock.Reward;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandMission;
 import com.iridium.iridiumskyblock.database.IslandReward;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MissionManager {
 
@@ -75,11 +77,19 @@ public class MissionManager {
 
             // Check if this mission is now completed
             if (!completedBefore && hasCompletedMission(island, entry.getValue(), entry.getKey())) {
+                Mission mission = entry.getValue();
+                Reward reward = mission.getReward();
+
+                List<String> messages = mission.getMessage().stream()
+                        .map(string -> StringUtils.color(string.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)))
+                        .collect(Collectors.toList());
+
                 island.getMembers().stream().map(user -> Bukkit.getPlayer(user.getUuid())).filter(Objects::nonNull).forEach(player -> {
-                    entry.getValue().getMessage().stream().map(string -> StringUtils.color(string.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix))).forEach(player::sendMessage);
-                    entry.getValue().getCompleteSound().play(player);
+                    messages.forEach(player::sendMessage);
+                    mission.getCompleteSound().play(player);
                 });
-                IridiumSkyblock.getInstance().getDatabaseManager().getIslandRewardTableManager().addEntry(new IslandReward(island, entry.getValue().getReward()));
+
+                IridiumSkyblock.getInstance().getDatabaseManager().getIslandRewardTableManager().addEntry(new IslandReward(island, reward));
             }
         }
     }

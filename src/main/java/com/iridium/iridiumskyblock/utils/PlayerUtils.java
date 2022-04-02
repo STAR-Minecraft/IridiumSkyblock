@@ -39,18 +39,40 @@ public class PlayerUtils {
             return false;
         }
 
-        IslandBank islandCrystals = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().crystalsBankItem);
-        if(islandCrystals.isEnabled()) {
-            islandCrystals.setNumber(islandCrystals.getNumber() - crystals);
-        }
-
         IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
         if(islandMoney.isEnabled()) {
             islandMoney.setNumber(islandMoney.getNumber() - money);
         } else {
             Economy economy = IridiumSkyblock.getInstance().getEconomy();
             EconomyResponse response = economy.withdrawPlayer(player, money);
-            return response.transactionSuccess();
+            if(!response.transactionSuccess()) {
+                return false;
+            }
+        }
+
+        IslandBank islandCrystals = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().crystalsBankItem);
+        if(islandCrystals.isEnabled()) {
+            islandCrystals.setNumber(islandCrystals.getNumber() - crystals);
+        }
+
+        return true;
+    }
+
+    public static boolean earn(@NotNull Player player, @NotNull Island island, int crystals, double money) {
+        IslandBank islandMoney = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().moneyBankItem);
+        if(islandMoney.isEnabled()) {
+            islandMoney.setNumber(islandMoney.getNumber() + money);
+        } else {
+            Economy economy = IridiumSkyblock.getInstance().getEconomy();
+            EconomyResponse response = economy.depositPlayer(player, money);
+            if(!response.transactionSuccess()) {
+                return false;
+            }
+        }
+
+        IslandBank islandCrystals = IridiumSkyblock.getInstance().getIslandManager().getIslandBank(island, IridiumSkyblock.getInstance().getBankItems().crystalsBankItem);
+        if(islandCrystals.isEnabled()) {
+            islandCrystals.setNumber(islandCrystals.getNumber() + crystals);
         }
 
         return true;

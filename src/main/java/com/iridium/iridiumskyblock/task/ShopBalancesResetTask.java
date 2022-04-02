@@ -3,7 +3,7 @@ package com.iridium.iridiumskyblock.task;
 import com.iridium.iridiumcore.utils.StringUtils;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
-import com.iridium.iridiumskyblock.database.ShopBalance;
+import com.iridium.iridiumskyblock.database.ShopLimits;
 import com.iridium.iridiumskyblock.database.User;
 import com.iridium.iridiumskyblock.managers.tablemanagers.IslandTableManager;
 import org.bukkit.scheduler.BukkitTask;
@@ -30,7 +30,7 @@ public final class ShopBalancesResetTask implements Runnable {
     public void start() {
         stop();
 
-        if(!plugin.getShop().shopBalanceConfig.resetBalancesEveryDay)
+        if(!plugin.getShop().shopLimitsConfig.resetLimitsEveryDay)
             return;
 
         this.cachedEpochDay = dataCacheFile.readAsLong(0).orElse(0);
@@ -68,17 +68,17 @@ public final class ShopBalancesResetTask implements Runnable {
     }
 
     private void processIsland(@NotNull Island island) {
-        ShopBalance balance = island.getShopBalance();
-        if(plugin.getShop().shopBalanceConfig.isDefaultBalance(island, balance))
+        ShopLimits balance = island.getShopLimits();
+        if(plugin.getShop().shopLimitsConfig.isDefaultAmounts(island, balance))
             return;
 
-        island.resetShopBalance();
+        island.resetShopLimits();
         islandTableManager.save(island);
 
         island.getMembers().stream()
                 .map(User::getPlayer)
                 .filter(Objects::nonNull)
-                .forEach(player -> player.sendMessage(StringUtils.color(plugin.getMessages().shopBalanceResetAlert.replace("%prefix%", plugin.getConfiguration().prefix))));
+                .forEach(player -> player.sendMessage(StringUtils.color(plugin.getMessages().shopLimitsResetAlert.replace("%prefix%", plugin.getConfiguration().prefix))));
     }
 
 }

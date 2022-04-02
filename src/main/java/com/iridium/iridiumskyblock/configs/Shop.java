@@ -11,13 +11,12 @@ import com.iridium.iridiumcore.utils.Placeholder;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandUpgrade;
-import com.iridium.iridiumskyblock.database.ShopBalance;
-import com.iridium.iridiumskyblock.exceptions.ShopBalanceInsufficientFundsException;
-import com.iridium.iridiumskyblock.exceptions.ShopBalanceLimitExceededException;
+import com.iridium.iridiumskyblock.database.ShopLimits;
+import com.iridium.iridiumskyblock.exceptions.ShopLimitExceededException;
 import com.iridium.iridiumskyblock.shop.ShopItem;
 import com.iridium.iridiumskyblock.shop.ShopItem.BuyCost;
 import com.iridium.iridiumskyblock.shop.ShopItem.SellReward;
-import com.iridium.iridiumskyblock.upgrades.ShopBalanceLimitUpgrade;
+import com.iridium.iridiumskyblock.upgrades.ShopLimitUpgrade;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -809,10 +808,10 @@ public class Shop {
     public List<String> notSellableLore = Collections.singletonList("&cThis item cannot be sold!");
     public List<String> shopItemLore = Arrays.asList(" ", "&b&l[!] &bLeft-Click to Purchase %amount%, Shift for 64", "&b&l[!] &bRight Click to Sell %amount%, Shift for 64");
 
-    public ShopBalanceConfig shopBalanceConfig = new ShopBalanceConfig();
+    public ShopLimitsConfig shopLimitsConfig = new ShopLimitsConfig();
 
     public boolean abbreviatePrices = true;
-    public boolean abbreviateShopBalances = true;
+    public boolean abbreviateShopLimits = true;
     public boolean dropItemWhenFull = false;
     public boolean addFooterLineInGUI = true;
 
@@ -827,13 +826,13 @@ public class Shop {
     public Background overviewBackground = new Background(ImmutableMap.<Integer, Item>builder().build());
     public Background categoryBackground = new Background(ImmutableMap.<Integer, Item>builder().build());
 
-    public Item resetButton = new Item(XMaterial.HOPPER, 35, 1, "&b&lReset Shop Balance", Arrays.asList(
-            "&7Want to reset your shop balance to default?",
+    public Item resetButton = new Item(XMaterial.HOPPER, 35, 1, "&b&lReset Shop Limits", Arrays.asList(
+            "&7Want to reset your shop limits to default?",
             "&7You can do that with this button.",
             "",
             "&7Reset Cost: &b%crystals% Crystals and $%vault%",
             "",
-            "&b&l[!] &bLeft Click to Reset the Shop Balance"
+            "&b&l[!] &bLeft Click to Reset the Shop Limits"
     ));
 
     /**
@@ -848,15 +847,19 @@ public class Shop {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class ShopBalanceConfig {
+    public static class ShopLimitsConfig {
         private static final double DEFAULT_LIMIT = -1D;
 
-        public boolean fillDefaultBalancesToLimit = false;
-        public boolean resetBalancesEveryDay = true;
+        public boolean resetLimitsEveryDay = true;
+
+        public Map<String, Double> limits = ImmutableMap.<String, Double>builder()
+                .put("crystals", 50.0)
+                .put("vault", 5000.0)
+                .build();
 
         public Map<String, Double> resetPrice = ImmutableMap.<String, Double>builder()
-                .put("crystals", 100.0)
-                .put("vault", 10000.0)
+                .put("crystals", 50.0)
+                .put("vault", 5000.0)
                 .build();
 
         @JsonIgnore
@@ -865,11 +868,11 @@ public class Shop {
         }
 
         @JsonIgnore
-        public double getBalanceLimit(@NotNull Island island, @NotNull String currency) {
-            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shop-balance-limit");
+        public double getActualLimit(@NotNull Island island, @NotNull String currency) {
+            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shoplimits");
             int upgradeLevel = islandUpgrade.getLevel();
 
-            ShopBalanceLimitUpgrade upgrade = IridiumSkyblock.getInstance().getUpgrades().shopBalanceLimitUpgrade.upgrades.get(upgradeLevel);
+            ShopLimitUpgrade upgrade = IridiumSkyblock.getInstance().getUpgrades().shopLimitsUpgrade.upgrades.get(upgradeLevel);
             if (upgrade == null)
                 return 0D;
 
@@ -888,54 +891,31 @@ public class Shop {
             return limit >= 0D ? limit : DEFAULT_LIMIT;
         }
 
-        public boolean has(@NotNull ShopBalance shopBalance, double crystals, double vault) {
-            return shopBalance.has("crystals", crystals) && shopBalance.has("vault", vault);
+        public boolean canAdd(@NotNull ShopLimits shopLimits, double crystals, double vault) {
+            return shopLimits.canAdd("crystals", crystals) && shopLimits.canAdd("vault", vault);
         }
 
-        public boolean depositAmount(@NotNull ShopBalance shopBalance, double crystals, double vault) {
+        public boolean addAmount(@NotNull ShopLimits shopLimits, double crystals, double vault) {
             try {
-                shopBalance.add("crystals", crystals);
-                shopBalance.add("vault", vault);
+                shopLimits.add("crystals", crystals);
+                shopLimits.add("vault", vault);
                 return true;
-            } catch (ShopBalanceLimitExceededException ignored) {
+            } catch (ShopLimitExceededException ignored) {
                 return false;
             }
         }
 
-        public boolean withdrawAmount(@NotNull ShopBalance shopBalance, double crystals, double vault) {
-            try {
-                shopBalance.take("crystals", crystals);
-                shopBalance.take("vault", vault);
-                return true;
-            } catch (ShopBalanceInsufficientFundsException ignored) {
-                return false;
-            }
-        }
-
-        public void fillWithDefaultAmounts(@NotNull Island island, @NotNull ShopBalance shopBalance) {
-            shopBalance.clear();
-
-            if(fillDefaultBalancesToLimit) {
-                ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
-                shopBalance.set("crystals", upgrade.crystalsLimit);
-                shopBalance.set("vault", upgrade.vaultLimit);
-            } else {
-                shopBalance.set("crystals", 0D);
-                shopBalance.set("vault", 0D);
-            }
+        public void fillWithDefaultAmounts(@NotNull Island island, @NotNull ShopLimits shopLimits) {
+            shopLimits.clear();
+            shopLimits.set("crystals", 0D);
+            shopLimits.set("vault", 0D);
         }
 
         @JsonIgnore
-        public boolean isDefaultBalance(@NotNull Island island, @NotNull ShopBalance shopBalance) {
-            double crystalsBalance = shopBalance.getBalanceOf("crystals").orElse(0D);
-            double vaultBalance = shopBalance.getBalanceOf("vault").orElse(0D);
-
-            if(fillDefaultBalancesToLimit) {
-                ShopBalanceLimitUpgrade upgrade = getUpgrade(island);
-                return crystalsBalance == upgrade.crystalsLimit && vaultBalance == upgrade.vaultLimit;
-            } else {
-                return crystalsBalance == 0 && vaultBalance == 0;
-            }
+        public boolean isDefaultAmounts(@NotNull Island island, @NotNull ShopLimits shopBalance) {
+            double crystalsBalance = shopBalance.getCountOf("crystals").orElse(0D);
+            double vaultBalance = shopBalance.getCountOf("vault").orElse(0D);
+            return crystalsBalance == 0 && vaultBalance == 0;
         }
 
         @JsonIgnore
@@ -950,10 +930,10 @@ public class Shop {
         }
 
         @JsonIgnore
-        private @NotNull ShopBalanceLimitUpgrade getUpgrade(@NotNull Island island) {
-            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shop-balance-limit");
+        private @NotNull ShopLimitUpgrade getUpgrade(@NotNull Island island) {
+            IslandUpgrade islandUpgrade = IridiumSkyblock.getInstance().getIslandManager().getIslandUpgrade(island, "shoplimits");
             int upgradeLevel = islandUpgrade.getLevel();
-            return IridiumSkyblock.getInstance().getUpgrades().shopBalanceLimitUpgrade.upgrades.get(upgradeLevel);
+            return IridiumSkyblock.getInstance().getUpgrades().shopLimitsUpgrade.upgrades.get(upgradeLevel);
         }
 
         private @NotNull Placeholder makePlaceholderInstance(@NotNull Map.Entry<String, ?> mapEntry) {

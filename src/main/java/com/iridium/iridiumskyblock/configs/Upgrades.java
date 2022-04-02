@@ -166,10 +166,10 @@ public class Upgrades {
                     .build()))
             .build());
 
-    public Upgrade<ShopBalanceLimitUpgrade> shopBalanceLimitUpgrade = new Upgrade<>(true, "Shop Balance Limit",
-            new Item(XMaterial.DIAMOND, 16, 1, "&b&lIsland Shop Balance Limit", Arrays.asList(
-                    "&7Need to expand the shop balance limit? Buy this",
-                    "&7upgrade to expand the shop balance limit.",
+    public Upgrade<ShopLimitUpgrade> shopLimitsUpgrade = new Upgrade<>(true, "Shop Selling Limits",
+            new Item(XMaterial.DIAMOND, 16, 1, "&b&lIsland Shop Selling Limits", Arrays.asList(
+                    "&7Need to expand the shop selling limits? Buy this",
+                    "&7upgrade to expand the shop selling limits.",
                     "",
                     "&b&lInformation:",
                     "&b&l * &7Current Level: &b%level%",
@@ -182,10 +182,10 @@ public class Upgrades {
                     "&b&l * &7Level 3: &bUp to 300 Crystals and $30000",
                     "",
                     "&b&l[!] &bLeft Click to Purchase this Upgrade"
-            )), ImmutableMap.<Integer, ShopBalanceLimitUpgrade>builder()
-            .put(1, new ShopBalanceLimitUpgrade(1000, 15, 100D, 10000D))
-            .put(2, new ShopBalanceLimitUpgrade(1000, 15, 200D, 20000D))
-            .put(3, new ShopBalanceLimitUpgrade(1000, 15, 300D, 30000D))
+            )), ImmutableMap.<Integer, ShopLimitUpgrade>builder()
+            .put(1, new ShopLimitUpgrade(1000, 15, 100D, 10000D))
+            .put(2, new ShopLimitUpgrade(1000, 15, 200D, 20000D))
+            .put(3, new ShopLimitUpgrade(1000, 15, 300D, 30000D))
             .build());
 
 }

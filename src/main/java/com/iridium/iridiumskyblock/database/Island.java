@@ -64,8 +64,8 @@ public final class Island extends DatabaseObject {
     @DatabaseField(columnName = "color", canBeNull = false)
     private @NotNull Color color;
 
-    @DatabaseField(columnName = "shop_balance")
-    private ShopBalance shopBalance;
+    @DatabaseField(columnName = "shop_limits")
+    private ShopLimits shopLimits;
 
     @DatabaseField(columnName = "shop_reset_at")
     private long shopResetAt;
@@ -242,19 +242,19 @@ public final class Island extends DatabaseObject {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(shopResetAt), ZoneId.systemDefault());
     }
 
-    public @NotNull ShopBalance getShopBalance() {
-        if(shopBalance == null) {
-            this.shopBalance = new ShopBalance(this);
-            resetShopBalance();
+    public @NotNull ShopLimits getShopLimits() {
+        if(shopLimits == null) {
+            this.shopLimits = new ShopLimits(this);
+            resetShopLimits();
         }
 
-        shopBalance.setIsland(this);
-        return shopBalance;
+        shopLimits.setIsland(this);
+        return shopLimits;
     }
 
-    public void resetShopBalance() {
-        if(shopBalance != null) {
-            IridiumSkyblock.getInstance().getShop().shopBalanceConfig.fillWithDefaultAmounts(this, shopBalance);
+    public void resetShopLimits() {
+        if(shopLimits != null) {
+            IridiumSkyblock.getInstance().getShop().shopLimitsConfig.fillWithDefaultAmounts(this, shopLimits);
             this.shopResetAt = System.currentTimeMillis();
             setChanged(true);
         }

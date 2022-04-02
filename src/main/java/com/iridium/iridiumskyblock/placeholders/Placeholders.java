@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.iridium.iridiumskyblock.IridiumSkyblock;
 import com.iridium.iridiumskyblock.database.Island;
 import com.iridium.iridiumskyblock.database.IslandBooster;
-import com.iridium.iridiumskyblock.database.ShopBalance;
+import com.iridium.iridiumskyblock.database.ShopLimits;
 import com.iridium.iridiumskyblock.database.User;
 import com.iridium.iridiumskyblock.managers.IslandManager;
 import org.apache.commons.lang.WordUtils;
@@ -182,8 +182,8 @@ public class Placeholders {
 
     private static Placeholder getShopBalancePlaceholder(@NotNull IslandGetter islandGetter, @NotNull String currency) {
         return player -> islandGetter.getIsland(player).map(island -> {
-            ShopBalance balance = island.getShopBalance();
-            double amount = balance != null ? balance.getBalanceOf(currency).orElse(0D) : 0D;
+            ShopLimits balance = island.getShopLimits();
+            double amount = balance != null ? balance.getCountOf(currency).orElse(0D) : 0D;
             return IridiumSkyblock.getInstance().getNumberFormatter().format(amount);
         }).orElse(placeholdersConfig.getIslandShopBalanceStub(currency));
     }
@@ -198,8 +198,7 @@ public class Placeholders {
             {
                 // Island manager caches this
                 List<Island> topIslands = IridiumSkyblock.getInstance().getIslandManager().getIslands(IslandManager.SortType.VALUE);
-                Optional<Island> island = Optional.ofNullable(topIslands.size() > index ? topIslands.get(index - 1) : null);
-                return island;
+                return Optional.ofNullable(topIslands.size() > index ? topIslands.get(index - 1) : null);
             }));
         }
         return hashmap;

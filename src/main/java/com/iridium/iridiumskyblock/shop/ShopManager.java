@@ -9,8 +9,9 @@ import com.iridium.iridiumskyblock.api.ShopSellEvent;
 import com.iridium.iridiumskyblock.configs.Shop;
 import com.iridium.iridiumskyblock.configs.Shop.ShopCategoryConfig;
 import com.iridium.iridiumskyblock.database.Island;
-import com.iridium.iridiumskyblock.database.ShopBalance;
+import com.iridium.iridiumskyblock.database.ShopLimits;
 import com.iridium.iridiumskyblock.shop.ShopItem.BuyCost;
+import com.iridium.iridiumskyblock.utils.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -98,21 +99,20 @@ public class ShopManager {
      * @param amount   The amount of the item which is requested
      */
     public void buy(Player player, ShopItem shopItem, int amount) {
-        BuyCost buyCost = shopItem.buyCost;
-        double vaultCost = calculateCost(amount, shopItem.defaultAmount, buyCost.vault);
-        int crystalCost = (int) calculateCost(amount, shopItem.defaultAmount, buyCost.crystals);
         final Optional<Island> island = IridiumSkyblockAPI.getInstance().getUser(player).getIsland();
         if (!island.isPresent()) {
             player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().noIsland.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
             return;
         }
 
-        Shop shopConfig = IridiumSkyblock.getInstance().getShop();
+        BuyCost buyCost = shopItem.buyCost;
+        int crystalsCost = (int) calculateCost(amount, shopItem.defaultAmount, buyCost.crystals);
+        double vaultCost = calculateCost(amount, shopItem.defaultAmount, buyCost.vault);
 
-        ShopBalance balance = island.get().getShopBalance();
-        if(!shopConfig.shopBalanceConfig.has(balance, crystalCost, vaultCost)) {
+        boolean canPurchase = PlayerUtils.canPurchase(player, island.get(), crystalsCost, vaultCost);
+        if (!canPurchase) {
             player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().cannotAfford.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
-            shopConfig.failSound.play(player);
+            IridiumSkyblock.getInstance().getShop().failSound.play(player);
             return;
         }
 
@@ -120,6 +120,7 @@ public class ShopManager {
         Bukkit.getPluginManager().callEvent(shopPurchaseEvent);
         if (shopPurchaseEvent.isCancelled()) return;
 
+        Shop shopConfig = IridiumSkyblock.getInstance().getShop();
         if (shopItem.command == null) {
             // Add item to the player Inventory
             if (!shopConfig.dropItemWhenFull && !InventoryUtils.hasEmptySlot(player.getInventory())) {
@@ -129,6 +130,7 @@ public class ShopManager {
 
             ItemStack itemStack = shopItem.type.parseItem();
             itemStack.setAmount(amount);
+
             if (shopItem.displayName != null && !shopItem.displayName.isEmpty()) {
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.setDisplayName(StringUtils.color(shopItem.displayName));
@@ -148,7 +150,8 @@ public class ShopManager {
         }
 
         // Only run the withdrawing function when the user can buy it.
-        shopConfig.shopBalanceConfig.withdrawAmount(balance, crystalCost, vaultCost);
+        PlayerUtils.pay(player, island.get(), crystalsCost, vaultCost);
+
         IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().save(island.get());
 
         shopConfig.successSound.play(player);
@@ -159,8 +162,8 @@ public class ShopManager {
                                 .replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)
                                 .replace("%amount%", String.valueOf(amount))
                                 .replace("%item%", StringUtils.color(shopItem.name))
+                                .replace("%crystal_cost%", String.valueOf(crystalsCost))
                                 .replace("%vault_cost%", String.valueOf(vaultCost))
-                                .replace("%crystal_cost%", String.valueOf(crystalCost))
                 )
         );
     }
@@ -187,17 +190,19 @@ public class ShopManager {
         if (shopSellEvent.isCancelled()) return;
 
         double vaultReward = calculateCost(soldAmount, shopItem.defaultAmount, shopItem.sellReward.vault);
-        int crystalReward = (int) calculateCost(soldAmount, shopItem.defaultAmount, shopItem.sellReward.crystals);
+        int crystalsReward = (int) calculateCost(soldAmount, shopItem.defaultAmount, shopItem.sellReward.crystals);
 
         Island island = IridiumSkyblockAPI.getInstance().getUser(player).getIsland().get();
-        ShopBalance balance = island.getShopBalance();
-        if (!IridiumSkyblock.getInstance().getShop().shopBalanceConfig.depositAmount(balance, crystalReward, vaultReward)) {
-            player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().shopBalanceLimitExceeded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
+        ShopLimits limits = island.getShopLimits();
+        if (!IridiumSkyblock.getInstance().getShop().shopLimitsConfig.addAmount(limits, crystalsReward, vaultReward)) {
+            player.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().shopLimitExceeded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
             return;
         }
 
-        IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().save(island);
         InventoryUtils.removeAmount(player.getInventory(), shopItem.type, soldAmount);
+
+        PlayerUtils.earn(player, island, crystalsReward, vaultReward);
+        IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().save(island);
 
         player.sendMessage(
                 StringUtils.color(
@@ -206,7 +211,7 @@ public class ShopManager {
                                 .replace("%amount%", String.valueOf(amount))
                                 .replace("%item%", StringUtils.color(shopItem.name))
                                 .replace("%vault_reward%", String.valueOf(vaultReward))
-                                .replace("%crystal_reward%", String.valueOf(crystalReward))
+                                .replace("%crystal_reward%", String.valueOf(crystalsReward))
                 )
         );
 

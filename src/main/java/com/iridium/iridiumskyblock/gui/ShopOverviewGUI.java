@@ -9,7 +9,7 @@ import com.iridium.iridiumskyblock.api.IridiumSkyblockAPI;
 import com.iridium.iridiumskyblock.configs.Messages;
 import com.iridium.iridiumskyblock.configs.Shop;
 import com.iridium.iridiumskyblock.database.Island;
-import com.iridium.iridiumskyblock.database.ShopBalance;
+import com.iridium.iridiumskyblock.database.ShopLimits;
 import com.iridium.iridiumskyblock.shop.ShopCategory;
 import com.iridium.iridiumskyblock.utils.PlayerUtils;
 import org.bukkit.Bukkit;
@@ -62,20 +62,20 @@ public class ShopOverviewGUI extends GUI {
         Item resetButton = IridiumSkyblock.getInstance().getShop().resetButton;
         if (resetButton != null) {
             Player player = getViewingPlayer(inventory);
-            double crystalsBalance = 0D;
-            double vaultBalance = 0D;
+            double earnedCrystals = 0D;
+            double earnedVault = 0D;
 
             if (player != null) {
                 Island island = IridiumSkyblockAPI.getInstance().getUser(player).getIsland().get();
-                ShopBalance balance = island.getShopBalance();
+                ShopLimits limits = island.getShopLimits();
 
-                crystalsBalance = balance.getBalanceOf("crystals").orElse(0D);
-                vaultBalance = balance.getBalanceOf("vault").orElse(0D);
+                earnedCrystals = limits.getCountOf("crystals").orElse(0D);
+                earnedVault = limits.getCountOf("vault").orElse(0D);
             }
 
-            List<Placeholder> placeholders = IridiumSkyblock.getInstance().getShop().shopBalanceConfig.getResetPricePlaceholders();
-            placeholders.add(new Placeholder("shop_balance_crystals", formatBalance(crystalsBalance)));
-            placeholders.add(new Placeholder("shop_balance_vault", formatBalance(vaultBalance)));
+            List<Placeholder> placeholders = IridiumSkyblock.getInstance().getShop().shopLimitsConfig.getResetPricePlaceholders();
+            placeholders.add(new Placeholder("earned_crystals", formatBalance(earnedCrystals)));
+            placeholders.add(new Placeholder("earned_vault", formatBalance(earnedVault)));
             inventory.setItem(resetButton.slot, ItemStackUtils.makeItem(resetButton, placeholders));
         }
 
@@ -113,7 +113,7 @@ public class ShopOverviewGUI extends GUI {
 
         Item resetButton = IridiumSkyblock.getInstance().getShop().resetButton;
         if (resetButton != null && resetButton.slot == event.getSlot() && whoClicked instanceof Player) {
-            resetShopBalance((Player) whoClicked);
+            resetShopLimits((Player) whoClicked);
             return;
         }
 
@@ -122,23 +122,23 @@ public class ShopOverviewGUI extends GUI {
         );
     }
 
-    private void resetShopBalance(Player player) {
+    private void resetShopLimits(Player player) {
         Shop shopConfig = IridiumSkyblock.getInstance().getShop();
-        Shop.ShopBalanceConfig shopBalanceConfig = shopConfig.shopBalanceConfig;
+        Shop.ShopLimitsConfig shopBalanceConfig = shopConfig.shopLimitsConfig;
         List<Placeholder> resetPricePlaceholders = shopBalanceConfig.getResetPricePlaceholders();
 
         double vaultCost = shopBalanceConfig.getResetCost("vault");
         int crystalsCost = (int) shopBalanceConfig.getResetCost("crystals");
 
         Island island = IridiumSkyblockAPI.getInstance().getUser(player).getIsland().get();
-        ShopBalance balance = island.getShopBalance();
+        ShopLimits limits = island.getShopLimits();
 
         player.closeInventory();
 
         Messages messages = IridiumSkyblock.getInstance().getMessages();
-        if(shopBalanceConfig.isDefaultBalance(island, balance)) {
+        if(shopBalanceConfig.isDefaultAmounts(island, limits)) {
             shopConfig.shopResetFailSound.play(player);
-            player.sendMessage(StringUtils.color(messages.shopBalanceResetNotNeeded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
+            player.sendMessage(StringUtils.color(messages.shopLimitsResetNotNeeded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
             return;
         }
 
@@ -146,7 +146,7 @@ public class ShopOverviewGUI extends GUI {
             shopConfig.shopResetFailSound.play(player);
             player.sendMessage(
                     StringUtils.processMultiplePlaceholders(
-                            messages.shopBalanceResetFail.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix),
+                            messages.shopLimitsResetFail.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix),
                             resetPricePlaceholders
                     )
             );
@@ -155,7 +155,7 @@ public class ShopOverviewGUI extends GUI {
 
         PlayerUtils.pay(player, island, crystalsCost, vaultCost);
 
-        island.resetShopBalance();
+        island.resetShopLimits();
 
         IridiumSkyblock.getInstance().getDatabaseManager().getIslandTableManager().save(island);
 
@@ -163,14 +163,14 @@ public class ShopOverviewGUI extends GUI {
 
         player.sendMessage(
                 StringUtils.processMultiplePlaceholders(
-                        messages.shopBalanceResetSuccess.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix),
+                        messages.shopLimitsResetSuccess.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix),
                         resetPricePlaceholders
                 )
         );
     }
 
     private String formatBalance(double value) {
-        if (IridiumSkyblock.getInstance().getShop().abbreviateShopBalances) {
+        if (IridiumSkyblock.getInstance().getShop().abbreviateShopLimits) {
             return IridiumSkyblock.getInstance().getConfiguration().numberFormatter.format(value);
         } else {
             return String.valueOf(value);

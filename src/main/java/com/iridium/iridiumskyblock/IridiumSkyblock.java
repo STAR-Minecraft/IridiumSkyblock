@@ -475,8 +475,8 @@ public class IridiumSkyblock extends IridiumCore {
             upgradesList.put("generator", upgrades.oresUpgrade);
             BlockFormListener.generateOrePossibilities();
         }
-        if (upgrades.shopBalanceLimitUpgrade.enabled) {
-            upgradesList.put(("shop-balance-limit"), upgrades.shopBalanceLimitUpgrade);
+        if (upgrades.shopLimitsUpgrade.enabled) {
+            upgradesList.put(("shoplimits"), upgrades.shopLimitsUpgrade);
         }
 
         this.boosterList = new HashMap<>();

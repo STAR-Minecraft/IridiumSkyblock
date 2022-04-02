@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 public class DatabaseManager {
 
-    public static final int CURRENT_VERSION = 5;
+    public static final int CURRENT_VERSION = 6;
 
     private IslandTableManager islandTableManager;
     private UserTableManager userTableManager;
@@ -61,7 +61,7 @@ public class DatabaseManager {
         String databaseURL = getDatabaseURL(sqlConfig);
 
         DataPersisterManager.registerDataPersisters(XMaterialType.getSingleton());
-        DataPersisterManager.registerDataPersisters(ShopBalance.Persister.getSingleton());
+        DataPersisterManager.registerDataPersisters(ShopLimits.Persister.getSingleton());
 
         if (!IridiumSkyblock.getInstance().isTesting()) {
             this.connectionSource = new JdbcConnectionSource(
