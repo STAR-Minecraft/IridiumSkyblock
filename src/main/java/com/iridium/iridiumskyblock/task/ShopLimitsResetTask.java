@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.Objects;
 
-public final class ShopBalancesResetTask implements Runnable {
+public final class ShopLimitsResetTask implements Runnable {
 
     private final IridiumSkyblock plugin;
     private final DataCacheFile dataCacheFile;
@@ -21,7 +21,7 @@ public final class ShopBalancesResetTask implements Runnable {
     private long cachedEpochDay;
     private BukkitTask currentTask;
 
-    public ShopBalancesResetTask(@NotNull IridiumSkyblock plugin) {
+    public ShopLimitsResetTask(@NotNull IridiumSkyblock plugin) {
         this.plugin = plugin;
         this.dataCacheFile = new DataCacheFile(plugin, ".current-day-cache");
         this.islandTableManager = plugin.getDatabaseManager().getIslandTableManager();
@@ -68,8 +68,8 @@ public final class ShopBalancesResetTask implements Runnable {
     }
 
     private void processIsland(@NotNull Island island) {
-        ShopLimits balance = island.getShopLimits();
-        if(plugin.getShop().shopLimitsConfig.isDefaultAmounts(island, balance))
+        ShopLimits limits = island.getShopLimits();
+        if(plugin.getShop().shopLimitsConfig.isDefaultAmounts(island, limits))
             return;
 
         island.resetShopLimits();

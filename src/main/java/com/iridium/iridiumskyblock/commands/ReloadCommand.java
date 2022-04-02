@@ -31,7 +31,7 @@ public class ReloadCommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         IridiumSkyblock.getInstance().loadConfigs();
-        IridiumSkyblock.getInstance().getShopBalancesResetTask().restart();
+        IridiumSkyblock.getInstance().getShopLimitsResetTask().restart();
         sender.sendMessage(StringUtils.color(IridiumSkyblock.getInstance().getMessages().reloaded.replace("%prefix%", IridiumSkyblock.getInstance().getConfiguration().prefix)));
         return true;
     }

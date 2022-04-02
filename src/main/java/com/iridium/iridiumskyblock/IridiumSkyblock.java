@@ -18,7 +18,7 @@ import com.iridium.iridiumskyblock.shop.ShopManager;
 import com.iridium.iridiumskyblock.support.RoseStackerSupport;
 import com.iridium.iridiumskyblock.support.StackerSupport;
 import com.iridium.iridiumskyblock.support.WildStackerSupport;
-import com.iridium.iridiumskyblock.task.ShopBalancesResetTask;
+import com.iridium.iridiumskyblock.task.ShopLimitsResetTask;
 import com.iridium.iridiumskyblock.utils.PlayerUtils;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
@@ -94,7 +94,7 @@ public class IridiumSkyblock extends IridiumCore {
 
     private StackerSupport stackerSupport;
 
-    private ShopBalancesResetTask shopBalancesResetTask;
+    private ShopLimitsResetTask shopLimitsResetTask;
 
     /**
      * The default constructor.
@@ -221,8 +221,8 @@ public class IridiumSkyblock extends IridiumCore {
         }
 
         // Reset islands shop balances
-        this.shopBalancesResetTask = new ShopBalancesResetTask(this);
-        this.shopBalancesResetTask.start();
+        this.shopLimitsResetTask = new ShopLimitsResetTask(this);
+        this.shopLimitsResetTask.start();
 
         resetIslandMissions();
 
@@ -240,8 +240,8 @@ public class IridiumSkyblock extends IridiumCore {
                 .forEach(InventoryView::close);
 
         // Shutdown the shop balances reset task
-        if(shopBalancesResetTask != null)
-            shopBalancesResetTask.stop();
+        if(shopLimitsResetTask != null)
+            shopLimitsResetTask.stop();
     }
 
     private void registerPlaceholderSupport() {
