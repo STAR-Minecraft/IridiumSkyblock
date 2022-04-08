@@ -64,7 +64,7 @@ public final class Island extends DatabaseObject {
     @DatabaseField(columnName = "color", canBeNull = false)
     private @NotNull Color color;
 
-    @DatabaseField(columnName = "shop_limits")
+    @DatabaseField(columnName = "shop_balance")
     private ShopLimits shopLimits;
 
     @DatabaseField(columnName = "shop_reset_at")

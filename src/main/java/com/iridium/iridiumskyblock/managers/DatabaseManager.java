@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 public class DatabaseManager {
 
-    public static final int CURRENT_VERSION = 6;
+    public static final int CURRENT_VERSION = 5;
 
     private IslandTableManager islandTableManager;
     private UserTableManager userTableManager;
